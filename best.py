@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import cv2
 from bed import *
 
-img = cv2.imread('/home/hayato/Pictures/cat.jpg', 0)
+img = cv2.imread('res/cat.jpg', 0)
 
 img = img[340: 410, 230: 300]
 
