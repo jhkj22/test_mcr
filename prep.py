@@ -1,5 +1,5 @@
 import sys, os
-sys.path.append('/home/hayato/machine_learning/deep-learning-from-scratch')
+sys.path.append('/machine_learning/deep-learning-from-scratch')
 from dataset.mnist import load_mnist
 import numpy as np
 
