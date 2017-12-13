@@ -6,11 +6,7 @@ from bed import *
 img = cv2.imread('res/cat.jpg', 0)
 
 img = img[340: 410, 230: 300]
-
-plt.subplot(121)
-plt.imshow(img, cmap='gray')
-plt.subplot(122)
-img = img >> 5
+"""
 l = []
 for c in range(70):
     for r in range(69):
@@ -26,8 +22,11 @@ for r in range(70):
             l.append([r, c + 0.5])
 l = np.transpose(l)
 plt.plot(l[1], l[0], 'r|')
+"""
+plt.subplot(121)
 plt.imshow(img, cmap='gray')
-
+plt.subplot(122)
+plt.imshow(img >> 5, cmap='gray')
 plt.show()
 
 

@@ -1,3 +1,12 @@
+start = 16 * 15
+img_1 = np.where((start + 0 <= img) & (img < start + 32), 1, 0)
+img_2 = np.where((start + 16 <= img) & (img < start + 48), 1, 0)
+plt.subplot(121)
+plt.imshow(img_1, cmap='gray')
+plt.subplot(122)
+plt.imshow(img_2, cmap='gray')
+
+
 dx = cv2.Sobel(img, cv2.CV_64F, 1, 0)
 dy = cv2.Sobel(img, cv2.CV_64F, 0, 1)
 pw = np.sqrt(dx ** 2 + dy ** 2).astype(np.uint)
