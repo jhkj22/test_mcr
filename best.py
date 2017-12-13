@@ -23,10 +23,12 @@ for r in range(70):
 l = np.transpose(l)
 plt.plot(l[1], l[0], 'r|')
 """
-plt.subplot(121)
+img = img >> 5
+line = img[30]
+plt.subplot(211)
 plt.imshow(img, cmap='gray')
-plt.subplot(122)
-plt.imshow(img >> 5, cmap='gray')
+plt.subplot(212)
+plt.plot(range(len(line)), line)
 plt.show()
 
 
