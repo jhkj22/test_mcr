@@ -1,3 +1,20 @@
+l = []
+for c in range(70):
+    for r in range(69):
+        if img[r, c] != img[r + 1, c]:
+            l.append([r + 0.5, c])
+l = np.transpose(l)
+plt.plot(l[1], l[0], 'r_')
+
+l = []
+for r in range(70):
+    for c in range(69):
+        if img[r, c] != img[r, c + 1]:
+            l.append([r, c + 0.5])
+l = np.transpose(l)
+plt.plot(l[1], l[0], 'r|')
+
+
 start = 16 * 15
 img_1 = np.where((start + 0 <= img) & (img < start + 32), 1, 0)
 img_2 = np.where((start + 16 <= img) & (img < start + 48), 1, 0)
