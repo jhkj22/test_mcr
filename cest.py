@@ -5,29 +5,25 @@ import matplotlib.pyplot as plt
 import cv2
 import random
 from scipy import signal
-"""
-z, p, k = signal.ellip(12, 1, 100, 1 / 11, output='zpk')
-for n in range(6):
-    print('{{'+str(z[n])[1:-1]+'},{'+str(z[n+6])[1:-1]+'}}')
 
-fig, ax = plt.subplots()
-ax.axis('equal')
-ax.set_xlim(-1.1, 1.1)
-ax.set_ylim(-1.1, 1.1)
-ax.add_artist(plt.Circle((0, 0), 1, fill=False))
-ax.scatter(z.real, z.imag)
-ax.scatter(p.real, p.imag, marker='x')
-#w, h = signal.freqz(b, a)
-#plt.plot(w / np.pi, 20 * np.log10(abs(h)))
+A = np.zeros((50, 50))
+
+def neighbor(p):
+    l = np.array([[1, 0], [0, 1], [-1, 0], [0, -1]])
+    l = list(l + np.array(p))
+    l = [o for o in l if A[o[0], o[1]] == 0]
+    return l
+l = [[25, 25]]
+for _ in range(1000):
+    n = random.randint(0, len(l) - 1)
+    p = l.pop(n)
+    A[p[0], p[1]] = 1
+    l.extend(neighbor(p))
+    for o in l:
+        A[o[0], o[1]] = 2
+A = np.where(A == 1, 1, 0)
+plt.imshow(A, cmap='gray')
 plt.show()
-"""
-
-x = np.array([[0] * 200 + list(np.arange(0, 1, 0.01) ** 2 * 256) + [255] * 200] * 200)
-plt.imshow(x, cmap='gray')
-l = [0] * 200 + list(np.arange(0, 1, 0.01) ** 2 * 256) + [255] * 200
-#plt.plot(range(len(l)), l)
-plt.show()
-
 
 
 
