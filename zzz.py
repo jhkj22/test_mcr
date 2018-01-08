@@ -1,3 +1,349 @@
+for i in range(1, len(diff) - 1):
+    if diff[i] < 4:
+        continue
+    if diff[i] > diff[i - 1] * 3:
+        plt.plot([i, i + 1], line[i: i + 2], 'r')
+    if diff[i] > diff[i + 1] * 3:
+        plt.plot([i, i + 1], line[i: i + 2], 'y')
+
+for i in range(1, len(line) - 2):
+    diff = np.abs(line[i] - line[i + 1])
+    if diff == 0:
+        continue
+    left = line[i - 1: i + 1]
+    left = np.max(left) - np.min(left)
+    right = line[i + 1: i + 3]
+    right = np.max(right) - np.min(right)
+    if diff > 3 * left and diff > 3 * right:
+        print(i, diff)
+
+def edge1(cA):
+    cA = cA.astype(np.int)
+    l = []
+    mode = 0
+    for n in range(len(cA) - 1):
+        if cA[n] - cA[n + 1] > 15:
+            if mode == -1:
+                l[-1][1] = n + 1
+            else:
+                l.append([n, n + 1])
+                mode = -1
+        elif cA[n] - cA[n + 1] < -15:
+            if mode == 1:
+                l[-1][1] = n + 1
+            else:
+                l.append([n, n + 1])
+                mode = 1
+        else:
+            mode = 0
+    return l
+
+
+psu = []
+psd = []
+for r in range(21, 22):#img.shape[0]):
+    cA = img[r]
+    n = 2
+    for i in range(n):
+        cA, cD = pywt.dwt(cA / np.sqrt(2), 'db1')
+    l = np.array(edge1(cA))
+    for ps in l:
+        o = cA[ps]
+        c = ps * (2 ** n)
+        if o[1] > o[0]:
+            psu.append([r, c[0]])
+            psu.append([r, c[1]])
+            #plt.plot(c, o, 'r')
+        else:
+            psd.append([r, c[0]])
+            psd.append([r, c[1]])
+            #plt.plot(c, o, 'b')
+    #plt.plot(img[r])
+#psu = np.transpose(psu)
+#plt.plot(psu[1], psu[0], 'ro', markersize=1)
+#psd = np.transpose(psd)
+#plt.plot(psd[1], psd[0], 'bo', markersize=1)
+
+    line = np.where(np.abs(cD) <= 2.5, 0, cD)
+    line = np.where(cD > 2.5, 1, line)
+    line = np.where(cD < -2.5, -1, line)
+
+
+img = np.zeros((1, 50))
+
+for s in range(56):
+    a = np.where((s <= line) & (line < s + 8), 1, 0).reshape(1, 50)
+    img = np.concatenate((a, img))
+
+
+cA = line[:32]
+cA, cD = pywt.dwt(cA, 'db1')
+cA, cD = cA / (2 ** 0.5), cD / (2 ** 0.5)
+plt.plot(line[:32])
+cA2 = []
+for o in cA:
+    cA2.extend([o, o])
+plt.plot(cA2)
+
+def edge1(line):
+    l = []
+    mode = 0
+    for i in range(len(line) - 1):
+        if mode == 0:
+            if line[i] < line[i + 1]:
+                mode = 1
+                l.append([i, i + 1])
+            elif line[i] > line[i + 1]:
+                mode = -1
+                l.append([i, i + 1])
+        elif mode == 1:
+            if line[i] > line[i + 1]:
+                mode = -1
+                l.append([i, i + 1])
+            elif line[i] < line[i + 1]:
+                l[-1][1] = i + 1
+        else:
+            if line[i] < line[i + 1]:
+                mode = 1
+                l.append([i, i + 1])
+            elif line[i] > line[i + 1]:
+                l[-1][1] = i + 1
+    return l
+def edge2(line, ext):
+    ln = line.astype(np.int)
+    return [o for o in ext if abs(ln[o[0]] - ln[o[1]]) > 1]
+ps = []
+for r in range(img.shape[0]):
+    line = img[r]
+    l = edge1(line)
+    l = edge2(line, l)
+    for o in l:
+        ps.append([r, o[0]])
+        ps.append([r, o[1]])
+ps = np.transpose(ps)
+plt.plot(ps[1], ps[0], 'ro')
+
+    n = 20000
+    s = np.array((([1.0] * n) +([-1.0] * n)) * int(length * fs / (2 * n)))
+
+def edge1(line):
+    l = []
+    if line[0] < line[1]:
+        l.append([0, 0])
+    elif line[0] > line[1]:
+        l.append([0, 1])
+    for i in range(1, len(line) - 1):
+        if line[i - 1] == line[i] and line[i] == line[i + 1]:
+            continue
+        if line[i - 1] >= line[i] and line[i + 1] >= line[i]:
+            l.append([i, 0])
+        elif line[i - 1] <= line[i] and line[i + 1] <= line[i]:
+            l.append([i, 1])
+    i = len(line) - 1
+    if line[i] < line[i - 1]:
+        l.append([i, 0])
+    elif line[i] > line[i - 1]:
+        l.append([i, 1])
+    return l
+def edge2(line, ext):
+    l = []
+    g_v = lambda i: line[ext[i][0]]
+    for i in range(len(ext) - 1):
+        if ext[i][1] != ext[i + 1][1]:
+            l.append([ext[i][0], ext[i + 1][0]])
+    return l
+def edge3(line, ext):
+    ln = line.astype(np.int)
+    return [o for o in ext if abs(ln[o[0]] - ln[o[1]]) > 1]
+
+
+for i1 in range(len(ext)):
+        most = i1
+        if ext[i1][1] == 0:
+            g1 = lambda i1, i2: g_v(i1) > g_v(i2) and ext[i2][1] == 0
+            g2 = lambda i1, i2: g_v(i1) < g_v(i2) and ext[i2][1] == 1
+        else:
+            g1 = lambda i1, i2: g_v(i1) < g_v(i2) and ext[i2][1] == 1
+            g2 = lambda i1, i2: g_v(i1) > g_v(i2) and ext[i2][1] == 0
+        for i2 in range(i1 + 1, len(ext)):
+            if g1(i1, i2):
+                continue
+            if g2(most, i2):
+                most = i2
+        l.append([ext[i1][0], ext[most][0]])
+
+for r in range(0, img.shape[0], 5):
+    comp = []
+    for cc in zip(range(0, img.shape[1] - 5, 5), range(5, img.shape[1], 5)):
+        params = [[r, cc[0], 5, 5], [r, cc[1], 5, 5]]
+        hist = []
+        for p in params:
+            r, c, rs, cs = p
+            h = cv2.calcHist([img[r: r + rs, c: c + cs]], [0], None, [16], [0, 64])
+            hist.append(h)
+        cm = cv2.compareHist(hist[0], hist[1], cv2.HISTCMP_BHATTACHARYYA)
+        cm = round(cm * 100); comp.append(cm)
+        if cm > 60:
+            plot_rect(r, cc[0], 5, 10)
+
+plt.subplot(121)
+for p in params:
+    plot_rect(*p)
+plt.imshow(img, cmap='gray')
+plt.subplot(122)
+x = []
+for p in params:
+    r, c, rs, cs = p
+    x.append(img[r: r + rs, c: c + cs].flatten())
+plt.hist(x, bins=2**4, range=(0,2**6))
+
+
+for i in range(6):
+    plt.subplot(230 + i + 1)
+    _, th = cv2.threshold(img, 2 ** 3 * (i + 18), 1, cv2.THRESH_BINARY)
+    plt.imshow(th, cmap='gray')
+_, contours, _ = cv2.findContours(th, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+
+for cont in contours:
+    cont = np.transpose(cont, (2, 1, 0))
+    plt.plot(cont[0][0], cont[1][0], 'r')
+
+
+l = []
+for r in range(50):
+    for c in range(50):
+        rf, cf = max([r - 1, 0]), max([c - 1, 0])
+        rt, ct = min([r + 2, 50]), min([c + 2, 50])
+        A = img[rf: rt, cf: ct]
+        if np.max(A) != np.min(A):
+            l.append([r, c])
+l = np.transpose(l)
+plt.plot(l[1], l[0], 'ro', markersize=1)
+
+def plot_rect(r, c, rs, cs):
+    plt.gca().add_patch(plt.Rectangle(xy=[c - 0.5, r - 0.5], width=cs, height=rs, fill=False))
+
+
+for n in range(2):
+    img = cv2.pyrDown(img)
+img = img.astype(np.int)
+rs, cs = img.shape
+for c in range(cs):
+    for r in range(1, rs):
+        a = np.abs(img[r - 1, c] - img[r, c])
+        if a > 20:
+            plt.plot([c - 0.5, c + 0.5], [r - 0.5, r - 0.5], 'r')
+for r in range(rs):
+    for c in range(1, cs):
+        a = np.abs(img[r, c - 1] - img[r, c])
+        if a > 20:
+            plt.plot([c - 0.5, c - 0.5], [r - 0.5, r + 0.5], 'r')
+
+
+sigma = 1
+mu = 0
+X = np.arange(140, 190, 0.1)
+Y = lambda X, mu, sigma: 1 / np.sqrt(2 * np.pi) / sigma * np.exp(-(X - mu) ** 2 / 2 / sigma ** 2)
+plt.plot(X, Y(X, a.mean(), a.std()))
+plt.plot(X, Y(X, b.mean(), b.std()))
+plt.show()
+
+
+plt.subplot(231)
+plt.hist(img[:25, :25].flatten())
+plt.subplot(232)
+plt.hist(img[:25, 25:].flatten())
+plt.subplot(233)
+plt.imshow(img, cmap='gray')
+plt.subplot(234)
+plt.hist(img[25:, :25].flatten())
+plt.subplot(235)
+plt.hist(img[25:, 25:].flatten())
+
+
+for c in range(20):
+    for r in range(1, 20):
+        a = np.abs(shrink[r - 1, c] - shrink[r, c])
+        if a > 1:
+            plt.plot([c - 0.5, c + 0.5], [r - 0.5, r - 0.5], 'r')
+for r in range(20):
+    for c in range(1, 20):
+        a = np.abs(shrink[r, c - 1] - shrink[r, c])
+        if a > 1:
+            plt.plot([c - 0.5, c - 0.5], [r - 0.5, r + 0.5], 'r')
+
+shrink = np.zeros((20, 50))
+for r in range(20):
+    for c in range(50):
+        shrink[r, c] = np.sum(out[2 * r: 2 * (r + 1), 2 * c: 2 * (c + 1)])
+
+
+l = split1(line)
+ll = split2(l)
+
+for o in ll:
+    plt.text(o[0] - 0.5, 0, '|', color='r')
+    plt.text(o[1] + 0.25, 0, '|', color='r')
+
+def split1(line):
+    l = [[]]
+    for n, o in enumerate(line):
+        if o == 1 and l[-1] == []:
+            l[-1].append(n)
+        elif o == 0 and l[-1] != []:
+            l[-1].append(n - 1)
+            l.append([])
+    if l[-1] == []:
+        l.pop()
+    return l
+def split2(line):
+    num = lambda o: o[1] - o[0] + 1
+    l = [line[0]]
+    tmp = num(line[0])
+    for o in line[1:]:
+        n = num(o)
+        if abs(tmp - n) > 1:
+            l.append(o)
+        else:
+            l[-1][1] = o[1]
+        tmp = num(o)
+    return l
+
+
+for r in range(1, 99):
+    for c in range(1, 99):
+        if out[r, c] == 1:
+            continue
+        if out[r - 1, c] == 1 and out[r + 1, c] == 1:
+            out[r, c] = 1
+        elif out[r, c - 1] == 1 and out[r, c + 1] == 1:
+            out[r, c] = 1
+for r in range(1, 99):
+    for c in range(1, 99):
+        if out[r, c] == 0:
+            continue
+        if out[r - 1, c] == 0 and out[r + 1, c] == 0:
+            out[r, c] = 0
+        elif out[r, c - 1] == 0 and out[r, c + 1] == 0:
+            out[r, c] = 0
+
+
+x = np.arange(1, length * fs + 1) / (0.2 * length * fs)
+sigma = 0.6; avg = 0
+y = np.exp(-((np.log(x) - avg) ** 2) / (2 * sigma ** 2))
+y = s * y
+
+img = cv2.GaussianBlur(img, (25, 25), 0)
+
+
+tmp = np.where(dx > np.cos(np.pi * 3 / 8), 1, 0)
+tmp = np.where(dx < np.cos(np.pi * 5 / 8), -1, tmp)
+dx = tmp
+tmp = np.where(dy > np.sin(np.pi * 1 / 8), 1, 0)
+tmp = np.where(dy < np.sin(np.pi * 9 / 8), -1, tmp)
+dy = tmp
+
+
 start = 16 * 15
 img_1 = np.where((start + 0 <= img) & (img < start + 32), 1, 0)
 img_2 = np.where((start + 16 <= img) & (img < start + 48), 1, 0)
