@@ -4,7 +4,6 @@ import cv2
 import pywt
 from bed import *
 
-<<<<<<< HEAD
 img = cv2.imread('res/apple.jpg', 0)
 img = img[120: 170, 90: 140]
 
@@ -52,21 +51,6 @@ for ps in store:
 points = np.transpose(points)
 plt.plot(points[1], points[0], 'bo', markersize=1)
 plt.imshow(img, cmap='gray', vmin=0, vmax=256)
-=======
-img = cv2.imread('res/cat.jpg', 0)
-
-img = img[340: 410, 230: 300]
-img = img >> 5
-
-line = img[0]
-plt.subplot(121)
-plt.imshow(img, cmap='gray')
-plt.subplot(122)
-plt.plot(range(len(line)), line)
-plt.show()
-
-
->>>>>>> b7952c17acb72a83b7b75d45d394f05977d35afd
 
 plt.show()
 
