@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 for i in range(1, len(diff) - 1):
     if diff[i] < 4:
         continue
@@ -342,6 +343,23 @@ dx = tmp
 tmp = np.where(dy > np.sin(np.pi * 1 / 8), 1, 0)
 tmp = np.where(dy < np.sin(np.pi * 9 / 8), -1, tmp)
 dy = tmp
+=======
+l = []
+for c in range(70):
+    for r in range(69):
+        if img[r, c] != img[r + 1, c]:
+            l.append([r + 0.5, c])
+l = np.transpose(l)
+plt.plot(l[1], l[0], 'r_')
+
+l = []
+for r in range(70):
+    for c in range(69):
+        if img[r, c] != img[r, c + 1]:
+            l.append([r, c + 0.5])
+l = np.transpose(l)
+plt.plot(l[1], l[0], 'r|')
+>>>>>>> b7952c17acb72a83b7b75d45d394f05977d35afd
 
 
 start = 16 * 15
