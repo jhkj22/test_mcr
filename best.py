@@ -41,22 +41,19 @@ for r in range(img.shape[0]):
     tmp = sorted(tmp, key=lambda t: t[-1][1])
 for o in tmp:
     store.append(o)
-store_h = sorted(store, key=lambda t: t[0][0])
 
-for n1, o1 in enumerate(store):
-    if n1 == 0:
-        print(o1)
-        print('')
-    for n2, o2 in enumerate(store_h):
-        if o1[-1][0] >= o2[0][0]:
+i1 = 0
+while i1 < len(store):
+    o1 = store[i1]
+    for i2 in range(len(store) - 1, -1, -1):
+        o2 = store[i2]
+        if o1[0][0] <= o2[-1][0]:
             continue
-        if len(o1) < 3 and len(o2) < 3:
-            continue
-        if n1 == 0:
-            print(o2)
+        print(i1, i2)
+        break
+    i1 += 1
 
-#for o in store_h:
-#    print(o)
+
 """
 for ps in store:
     if len(ps) < 5:

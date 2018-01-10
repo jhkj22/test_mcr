@@ -1,4 +1,17 @@
-<<<<<<< HEAD
+for n1, o1 in enumerate(store):
+    if n1 == 0:
+        print(o1)
+        print('')
+    for n2, o2 in enumerate(store_h):
+        if o1[-1][0] >= o2[0][0]:
+            continue
+        if len(o1) < 3 and len(o2) < 3:
+            continue
+        if n1 == 0:
+            print(o2)
+
+
+
 for i in range(1, len(diff) - 1):
     if diff[i] < 4:
         continue
