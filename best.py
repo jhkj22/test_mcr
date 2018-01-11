@@ -2,9 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 from bed import *
+from mathlib import exterior_angle
 
 img = cv2.imread('res/apple.jpg', 0)
-img = img[120: 170, 90: 140]
+img = img#[120: 170, 90: 140]
 
 store = []
 tmp = []
@@ -42,22 +43,51 @@ for r in range(img.shape[0]):
 for o in tmp:
     store.append(o)
 
+def tangent_p(head, tail):
+    index = []
+    for i1 in range(3):
+        for i2 in range(3):
+            index.append([i1, i2])
+    index = sorted(index, key=lambda t: t[0] + t[1])
+    for (i1, i2) in index:
+        i2 = -i2 - 1
+        if tail[i2][0] >= head[i1][0]:
+            continue
+        if abs(head[i1][1] - tail[i2][1]) > abs(head[i1][0] - tail[i2][0]):
+            continue
+        ang_h = exterior_angle([head[i1 + 1], head[i1], tail[i2]])
+        ang_t = exterior_angle([tail[i2 - 1], tail[i2], head[i1]])
+        if ang_h < 90 and ang_t < 90:
+            return [i1, i2]
+    return []
+
+
 i1 = 0
 while i1 < len(store):
     o1 = store[i1]
     for i2 in range(len(store) - 1, -1, -1):
         o2 = store[i2]
-        if o1[0][0] <= o2[-1][0]:
+        if i1 == i2:
             continue
-        print(i1, i2)
+        if len(o1) < 4 or len(o2) < 4:
+            continue
+        if abs(o1[0][0] - o2[-1][0]) > 3:
+            continue
+        if abs(o1[0][1] - o2[-1][1]) > 3:
+            continue
+        joint_i = tangent_p(o1, o2)
+        if joint_i == []:
+            continue
+        if joint_i[1] < -1:
+            store[i2] = store[i2][:joint_i[1] + 1]
+        store[i2].extend(store[i1][joint_i[0]:])
+        store[i1] = store[i2]
+        store.pop(i2)
+        i1 -= 1
         break
     i1 += 1
 
-
-"""
 for ps in store:
-    if len(ps) < 5:
-        continue
     ps = np.transpose(ps)
     plt.plot(ps[1], ps[0], 'r')
 
@@ -66,7 +96,7 @@ plt.plot(points[1], points[0], 'bo', markersize=1)
 plt.imshow(img, cmap='gray', vmin=0, vmax=256)
 
 plt.show()
-"""
+
 
 
 

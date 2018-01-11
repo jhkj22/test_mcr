@@ -1,3 +1,11 @@
+    while True:
+        ang_h = exterior_angle([head[i1 + 1], head[i1], tail[i2]])
+        ang_t = exterior_angle([tail[i2 - 1], tail[i2], head[i1]])
+        if ang_h < 90 and ang_t < 90:
+            return [i1, i2]
+        else:
+            return []
+
 for n1, o1 in enumerate(store):
     if n1 == 0:
         print(o1)

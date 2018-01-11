@@ -3,6 +3,7 @@ import numpy as np
 def interior_angle(p):
     return 180 - exterior_angle(p)
 def exterior_angle(p):
+    p = np.array(p)
     p -= p[1]
     ff = -complex(p[2][0], p[2][1]) / complex(p[0][0], p[0][1])
     return -np.angle(ff) * 180 / np.pi
