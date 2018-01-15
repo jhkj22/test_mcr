@@ -86,16 +86,13 @@ def connect2(store):
             break
         i1 += 1
     return store
-def plot(store, reverse=False, color='r'):
+def plot(store, cl=None):
     import matplotlib.pyplot as plt
     for ps in store:
         if len(ps) < 5:
             continue
         ps = np.transpose(ps)
-        if reverse:
-            plt.plot(ps[0], ps[1], color)
-        else:
-            plt.plot(ps[1], ps[0], color)
+        plt.plot(ps[1], ps[0], color=cl)
 
 
 
