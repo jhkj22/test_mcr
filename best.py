@@ -9,6 +9,7 @@ import shadow_edge
 img = cv2.imread('res/apple.jpg', 0)
 img = img#[290: 390, 170: 270]
 
+
 store, points = edge1.connect1(img, edge1.edge)
 store = edge1.connect2(store)
 store2 = [o for o in store if len(o) > 10]
