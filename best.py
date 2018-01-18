@@ -10,35 +10,42 @@ img = cv2.imread('res/apple.jpg', 0)
 img = img#[290: 390, 170: 270]
 
 
-store, points = edge1.connect1(img, edge1.edge)
-store = edge1.connect2(store)
-store2 = [o for o in store if len(o) > 10]
+store1, points = edge1.connect1(img, edge1.edge)
+store1 = edge1.connect2(store1)
+store1 = [o for o in store1 if len(o) > 10]
 
-store, points = edge1.connect1(img.T, edge1.edge)
-store = edge1.connect2(store)
-store = [[[o2[1], o2[0]] for o2 in o1] for o1 in store]
-store2.extend([o for o in store if len(o) > 10])
-edge1.plot(store2)
-#plt.imshow(img, cmap='gray', vmin=0, vmax=256)
-#plt.show()
+store2, points = edge1.connect1(img.T, edge1.edge)
+store2 = edge1.connect2(store2)
+store2 = [[[o2[1], o2[0]] for o2 in o1] for o1 in store2]
+store2 = [o for o in store2 if len(o) > 10]
 
-double_side = store2
-one_side = []
-no_side = []
+def head_vec(head, body):
+    s = head - body
+    arg = np.angle(np.complex(s[0], s[1]))
+    arg = arg * 180 / np.pi
+    return arg
 
-for o1 in double_side:
-    o1 = np.array(o1)
-    s1 = o1[0] - o1[10]
-    arg1 = np.arctan2(s1[1], s1[0])
-    arg1 = arg1 + np.pi if arg1 < 0 else arg1
-    arg1 = arg1 - np.pi if arg1 >= np.pi / 2 else arg1
-    arg1 = arg1 * 180 / np.pi
-    print(arg1)
-    for o2 in double_side:
-        pass
+for o in store1:
+    o = np.array(o)
+    arg = head_vec(o[0], o[10])
+    s = 0
+    if abs(arg - 135) < 5:
+        s += 1
+    elif abs(arg + 135) < 5:
+        s += 2
+    arg = head_vec(o[-1], o[-11])
+    if abs(arg - 45) < 5:
+        s += 10
+    elif abs(arg + 45) < 5:
+        s += 20
+    print(s)
 
-
-
+"""
+l = np.transpose(store2[5])
+plt.plot(l[1], l[0], 'r')
+plt.imshow(img, cmap='gray')
+plt.show()
+"""
 
 
 
