@@ -1,12 +1,10 @@
 def getSize():
-    f = open('../EURUSD.bin', 'rb')
+    f = open('./EURUSD.bin', 'rb')
     N = f.seek(0, 2) // 4
     f.close()
     return N
-#f = open('C:/Users/hayato/AppData/Roaming/MetaQuotes/Terminal/50CA3DFB510CC5A8F28B48D1BF2A5702/history/FXDD-MT4 Demo Server/GBPJPY60.hst', 'rb')
-#148, 60
 def getClose(start, stop):
-    f = open('../EURUSD.bin', 'rb')
+    f = open('./EURUSD.bin', 'rb')
     f.seek(start * 4, 0)
     l = f.read((stop - start) * 4)
     f.close()
@@ -17,7 +15,7 @@ def getClose(start, stop):
 import matplotlib.pyplot as plt
 import numpy as np
 
-start = getSize() - 10000# - 500
+start = getSize() - 10000 - 300
 close = np.array(getClose(start, start + 2 ** 8))
 #close = close[:50]
 
