@@ -15,9 +15,10 @@ def getClose(start, stop):
 import matplotlib.pyplot as plt
 import numpy as np
 
-start = getSize() - 10000 - 300
+start = getSize() - 10000# - 500
 close = np.array(getClose(start, start + 2 ** 8))
-#close = close[:50]
+close = close[50:150]
+close = close[20: 70]
 
 class Block:
     def __init__(self):
@@ -27,6 +28,15 @@ class Block:
         mx = max(self.l, key=lambda t: t[1])[1]
         mn = min(self.l, key=lambda t: t[1])[1]
         return [(self.l[0][0] + self.l[-1][0]) / 2, (mx + mn) / 2]
+    def draw(self):
+        if len(self.l) == 0:
+            return
+        top = max(self.l, key=lambda t: t[1])[1]
+        bot = min(self.l, key=lambda t: t[1])[1]
+        left = self.l[0][0]
+        right = self.l[-1][0]
+        ps = [[left, right, right, left, left], [top, top, bot, bot, top]]
+        plt.plot(ps[0], ps[1], color='orange')
 
 def first(close):
     tmp = []
@@ -67,7 +77,9 @@ for n in first(close):
     b.l.append([n, close[n]])
     blocks.append(b)
 
-for f1 in range(4):
+#plt.subplot(121)
+for f1 in range(2):
+    #[b.draw() for b in blocks]
     ps = get_extreme(blocks)
     ps = np.array(ps)
     
@@ -102,10 +114,9 @@ for f1 in range(4):
         blocks.append(b)
         i += 1
 
-
 ps = np.transpose(ps)
-plt.plot(ps[0], ps[1], 'ro')
-plt.plot(close)
+plt.plot(ps[0], ps[1], 'r')
+#plt.plot(close)
 plt.show()
 
 
