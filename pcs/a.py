@@ -15,11 +15,11 @@ def getClose(start, stop):
 import matplotlib.pyplot as plt
 import numpy as np
 
-start = getSize() - 10000# - 500
-close = np.array(getClose(start, start + 2 ** 8))
-close = close[50:150]
-close = close[20: 70]
-
+start = getSize() - 10000 + 200
+close = np.array(getClose(start, start + 2 ** 7))
+close = close[20:65]
+#close = close[20: 70]
+#close = close[80: 100]
 class Block:
     def __init__(self):
         self.l = []
@@ -78,8 +78,8 @@ for n in first(close):
     blocks.append(b)
 
 #plt.subplot(121)
-for f1 in range(2):
-    #[b.draw() for b in blocks]
+for f1 in range(1):
+    [b.draw() for b in blocks]
     ps = get_extreme(blocks)
     ps = np.array(ps)
     
