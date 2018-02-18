@@ -14,29 +14,12 @@ def getClose(start, stop):
 
 import matplotlib.pyplot as plt
 import numpy as np
+import copy
 
-start = getSize() - 10000 + 200
+start = getSize() - 10000 + 300
 close = np.array(getClose(start, start + 2 ** 7))
-close = close[20:65]
-#close = close[20: 70]
-#close = close[80: 100]
-class Block:
-    def __init__(self):
-        self.l = []
-        self.type = 0
-    def get_middle(self):
-        mx = max(self.l, key=lambda t: t[1])[1]
-        mn = min(self.l, key=lambda t: t[1])[1]
-        return [(self.l[0][0] + self.l[-1][0]) / 2, (mx + mn) / 2]
-    def draw(self):
-        if len(self.l) == 0:
-            return
-        top = max(self.l, key=lambda t: t[1])[1]
-        bot = min(self.l, key=lambda t: t[1])[1]
-        left = self.l[0][0]
-        right = self.l[-1][0]
-        ps = [[left, right, right, left, left], [top, top, bot, bot, top]]
-        plt.plot(ps[0], ps[1], color='orange')
+#close = close[70: 120]
+
 
 def first(close):
     tmp = []
@@ -59,66 +42,88 @@ def first(close):
     else:
         ps.append(i + 1)
     return ps
-def  get_extreme(blocks):
-    ps = [blocks[0].get_middle()]
-    for i in range(1, len(blocks) - 1):
-        m = blocks[i - 1].get_middle()
-        c = blocks[i].get_middle()
-        p = blocks[i + 1].get_middle()
-        if c[1] < p[1] and c[1] < m[1]:
-            ps.append(c)
-        elif c[1] > p[1] and c[1] > m[1]:
-            ps.append(c)
-    ps.append(blocks[-1].get_middle())
-    return ps
-blocks = []
-for n in first(close):
-    b = Block()
-    b.l.append([n, close[n]])
-    blocks.append(b)
+def  get_extreme(ps, close):
+    l = [ps[0]]
+    for i in range(1, len(ps) - 1):
+        m = close[ps[i - 1]]
+        c = close[ps[i]]
+        p = close[ps[i + 1]]
+        if c < p and c < m:
+            l.append(ps[i])
+        elif c > p and c > m:
+            l.append(ps[i])
+    l.append(ps[-1])
+    return l
+ps = first(close)
+ps = get_extreme(ps, close)
 
-#plt.subplot(121)
-for f1 in range(1):
-    [b.draw() for b in blocks]
-    ps = get_extreme(blocks)
-    ps = np.array(ps)
-    
-    ps_n = []
-    tmp = []
-    for i in range(len(ps) - 2):
-        n1 = abs(ps[i][1] - ps[i + 1][1])
-        n2 = abs(ps[i + 1][1] - ps[i + 2][1])
-        if n2 < n1 / 2:
-            tmp = [i + 1]
-        elif n1 < n2 / 2:
-            if len(tmp) != 0:
-                tmp.append(i + 1)
-                ps_n.append(tmp)
-                tmp = []
-        else:
-            if len(tmp) != 0:
-                tmp.append(i + 1)
-    blocks = []
-    i = 0
-    while i < len(ps):
-        if len(ps_n) > 0:
-            if ps_n[0][0] == i:
-                b = Block()
-                b.l = ps[ps_n[0]]
-                blocks.append(b)
-                i = ps_n[0][-1] + 1
-                ps_n.pop(0)
-                continue
-        b = Block()
-        b.l.append(list(ps[i]))
-        blocks.append(b)
-        i += 1
 
-ps = np.transpose(ps)
-plt.plot(ps[0], ps[1], 'r')
-#plt.plot(close)
+ps_p = [[] for e in ps]
+if close[ps[0]] < close[ps[1]]:
+    start = 0
+else:
+    start = 1
+for i1 in range(start, len(ps) - 2, 2):
+    mx = close[ps[i1]]
+    tmp_p = []
+    for i2 in range(i1 + 1, len(ps) - 1, 2):
+        mx = max([mx, close[ps[i2]]])
+        a = abs(mx - close[ps[i1]]) / abs(mx - close[ps[i2 + 1]])
+        if a < 0.5:
+            break
+        if a > 2.0:
+            continue
+        if len(tmp_p) == 0:
+            tmp_p.append(i2 + 1)
+            continue
+        x = [ps[i1], ps[tmp_p[-1]], ps[i2 + 1]]
+        y = close[x]
+        a = (y[2] * (x[1] - x[0]) + y[0] * (x[2] - x[1])) / (x[2] - x[0])
+        if a >= y[1]:
+            continue
+        a = (mx - y[1]) / (mx - a)
+        if a > 0.1:
+            tmp_p.append(i2 + 1)
+    ps_p[i1].extend(tmp_p)
+
+"""
+ps_p_av = [True if len(e) == 0 else False for e in ps_p]
+ps_seq = []
+def forward(l, i):
+    if len(l) >= 2:
+        a = abs(ps[l[-2]] - ps[l[-1]]) / abs(ps[l[-1]] - ps[i])
+        if a <= 0.5 or a >= 2.0:
+            if len(l) > 2:
+                if len(ps_seq) == 0 or ps_seq[-1] != l:
+                    ps_seq.append(l)
+            return
+        ps_p_av[i] = True
+    l.append(i)
+    if len(ps_p[i]) == 0:
+        if len(l) > 2:
+            ps_seq.append(l)
+        return
+    for o in ps_p[i]:
+        forward(copy.deepcopy(l), o)
+for i1 in range(len(ps_p)):
+    if ps_p_av[i1]:
+        continue
+    forward([], i1)
+"""
+plt.plot(close)
+for i1, o in enumerate(ps_p):
+    if len(o) == 0:
+        continue
+    for o in [[ps[i1], ps[i]] for i in o]:
+        plt.plot(o, close[o], 'r')
+"""
+for o in ps_seq:
+    print(o)
+    o = [ps[i] for i in o]
+    plt.plot(o, close[o], 'y')
+"""
+plt.plot(ps, close[ps], 'ro')
 plt.show()
-
 
 
 
