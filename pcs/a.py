@@ -110,13 +110,15 @@ for i1 in range(len(ps_p)):
         continue
     forward([], i1)
 """
+
 plt.plot(close)
+"""
 for i1, o in enumerate(ps_p):
     if len(o) == 0:
         continue
     for o in [[ps[i1], ps[i]] for i in o]:
         plt.plot(o, close[o], 'r')
-"""
+
 for o in ps_seq:
     print(o)
     o = [ps[i] for i in o]
