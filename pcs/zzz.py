@@ -1,3 +1,27 @@
+for i1 in range(start, len(ps) - 2, 2):
+    mx = close[ps[i1]]
+    tmp_p = []
+    for i2 in range(i1 + 1, len(ps) - 1, 2):
+        mx = max([mx, close[ps[i2]]])
+        a = abs(mx - close[ps[i1]]) / abs(mx - close[ps[i2 + 1]])
+        if a < 0.5:
+            break
+        if a > 2.0:
+            continue
+        if len(tmp_p) == 0:
+            tmp_p.append(i2 + 1)
+            continue
+        x = [ps[i1], ps[tmp_p[-1]], ps[i2 + 1]]
+        y = close[x]
+        a = (y[2] * (x[1] - x[0]) + y[0] * (x[2] - x[1])) / (x[2] - x[0])
+        if a >= y[1]:
+            continue
+        a = (mx - y[1]) / (mx - a)
+        if a > 0.1:
+            tmp_p.append(i2 + 1)
+    ps_p[i1].extend(tmp_p)
+
+
 ps_p = []
 if close[ps[0]] < close[ps[1]]:
     start = 0
