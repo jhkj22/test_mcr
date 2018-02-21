@@ -1,3 +1,88 @@
+import networkx
+
+vector = {}
+for i, ps in enumerate(ps_p):
+    if len(ps) == 0:
+        continue
+    vector[i] = ps
+
+graph = networkx.Graph(vector)
+pos = networkx.spring_layout(graph)
+
+networkx.draw_networkx_nodes(graph, pos)
+networkx.draw_networkx_edges(graph, pos)
+networkx.draw_networkx_labels(graph, pos)
+
+
+#--------size------------
+ps_p = [[] for e in ps]
+start = 0
+if close[ps[start]] > close[ps[start + 1]]:
+    start = 1
+for i1 in range(start, len(ps) - 2, 2):
+    mx = i1
+    for i2 in range(i1 + 1, len(ps) - 1, 2):
+        mx = max([mx, i2], key=lambda t: close[ps[t]])
+        a = abs(close[ps[mx]] - close[ps[i1]]) / abs(close[ps[mx]] - close[ps[i2 + 1]])
+        if a > 2.0:
+            continue
+        break
+    ps_p[i1].append(mx)
+if i1 <= len(ps) - 3:
+    pass
+
+start = len(ps) - 1
+if close[ps[start]] > close[ps[start - 1]]:
+    start = len(ps) - 2
+for i1 in range(start, 1, -2):
+    mx = i1
+    for i2 in range(i1 - 1, 0, -2):
+        mx = max([mx, i2], key=lambda t: close[ps[t]])
+        a = abs(close[ps[mx]] - close[ps[i1]]) / abs(close[ps[mx]] - close[ps[i2 - 1]])
+        if a > 2.0:
+            continue
+        break
+    ps_p[i1].append(mx)
+if i1 >= 3:
+    pass
+
+ps_ps = [[] for e in ps]
+for i, o in enumerate(ps_p):
+    if len(o) == 0:
+        continue
+    mi = min(o, key=lambda t: close[ps[t]])
+    ps_ps[i].extend([abs(ps[mi] - ps[i]), close[ps[mi]] - close[ps[i]]])
+
+for i1, o1 in enumerate(ps_p):
+    if len(o1) < 1:
+        continue
+    p1, s1 = ps[i1], ps_ps[i1][0]
+    for i2 in range(len(o1) - 1, -1, -1):
+        p2, s2 = ps[o1[i2]], ps_ps[o1[i2]][0]
+        d = abs(p1 - p2)
+        if d / s1 > 10 or d / s2 > 10:
+            ps_p[i1].pop(i2)
+
+
+for i, o in enumerate(ps_ps):
+    if len(o) < 1:
+        continue
+    if i == 0:
+        continue
+    if i == len(ps_ps) - 1:
+        continue
+    p, s = [ps[i], close[ps[i]]], o
+    top = p[1] + s[1] / 2
+    bot = p[1] - s[1] / 2
+    left = p[0] - s[0] / 2
+    right = p[0] + s[0] / 2
+    p = [[left, right, right, left, left], [top, top, bot, bot, top]]
+    plt.plot(p[0], p[1], color='orange')
+#------------------------
+
+
+
+
 for i1 in range(start, len(ps) - 2, 2):
     mx = close[ps[i1]]
     tmp_p = []
