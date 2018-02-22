@@ -56,29 +56,26 @@ def  get_extreme(ps, close):
 ps = first(close)
 ps = get_extreme(ps, close)
 
-ps_size = [[ps[1] - ps[0], close[ps[1]] - close[ps[0]]]]
-for i in range(1, len(ps) - 1):
-    l = close[ps[i - 1]]
-    c = close[ps[i]]
-    r = close[ps[i + 1]]
-    ld, rd = abs(l - c), abs(r - c)
-    if ld < rd:
-        w = ps[i] - ps[i - 1]
-        h = ld
-    else:
-        w = ps[i + 1] - ps[i]
-        h = rd
-    ps_size.append([w, h])
-ps_size.append([ps[i + 1] - ps[i], close[ps[i + 1]] - close[ps[i]]])
+def get_size():
+    ps_size = [[ps[1] - ps[0], close[ps[1]] - close[ps[0]]]]
+    for i in range(1, len(ps) - 1):
+        l = close[ps[i - 1]]
+        c = close[ps[i]]
+        r = close[ps[i + 1]]
+        ld, rd = abs(l - c), abs(r - c)
+        if ld < rd:
+            w = ps[i] - ps[i - 1]
+            h = ld
+        else:
+            w = ps[i + 1] - ps[i]
+            h = rd
+        ps_size.append([w, h])
+    ps_size.append([ps[i + 1] - ps[i], close[ps[i + 1]] - close[ps[i]]])
+    return ps_size
 
-    
-"""
-ps_p = [[] for e in ps]
-if close[ps[0]] < close[ps[1]]:
-    start = 0
-else:
-    start = 1
-for i1 in range(start, len(ps) - 2, 2):
+ps_size = get_size()
+
+def get_up():
     mx = close[ps[i1]]
     tmp = []
     for i2 in range(i1 + 1, len(ps) - 1, 2):
@@ -107,7 +104,16 @@ for i1 in range(start, len(ps) - 2, 2):
         if a > 2.0:
             continue
         ps_p[i1].append(i2 + 1)
-"""
+def get_down():
+    pass
+
+def get_node():
+    ps_p = [[] for e in ps]
+    for i1 in range(len(ps) - 2):
+        get_up()
+        get_down()
+
+
 
 plt.plot(close)
 
