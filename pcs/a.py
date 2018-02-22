@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import copy
 
-start = getSize() - 10000 + 1500
+start = getSize() - 10000 + 400
 close = np.array(getClose(start, start + 2 ** 7))
 
 
@@ -56,7 +56,23 @@ def  get_extreme(ps, close):
 ps = first(close)
 ps = get_extreme(ps, close)
 
+ps_size = [[ps[1] - ps[0], close[ps[1]] - close[ps[0]]]]
+for i in range(1, len(ps) - 1):
+    l = close[ps[i - 1]]
+    c = close[ps[i]]
+    r = close[ps[i + 1]]
+    ld, rd = abs(l - c), abs(r - c)
+    if ld < rd:
+        w = ps[i] - ps[i - 1]
+        h = ld
+    else:
+        w = ps[i + 1] - ps[i]
+        h = rd
+    ps_size.append([w, h])
+ps_size.append([ps[i + 1] - ps[i], close[ps[i + 1]] - close[ps[i]]])
 
+    
+"""
 ps_p = [[] for e in ps]
 if close[ps[0]] < close[ps[1]]:
     start = 0
@@ -91,39 +107,27 @@ for i1 in range(start, len(ps) - 2, 2):
         if a > 2.0:
             continue
         ps_p[i1].append(i2 + 1)
-
-
 """
-ps_p_av = [True if len(e) == 0 else False for e in ps_p]
-ps_seq = []
-def forward(l, i):
-    if len(l) >= 2:
-        a = abs(ps[l[-2]] - ps[l[-1]]) / abs(ps[l[-1]] - ps[i])
-        if a <= 0.5 or a >= 2.0:
-            if len(l) > 2:
-                if len(ps_seq) == 0 or ps_seq[-1] != l:
-                    ps_seq.append(l)
-            return
-        ps_p_av[i] = True
-    l.append(i)
-    if len(ps_p[i]) == 0:
-        if len(l) > 2:
-            ps_seq.append(l)
-        return
-    for o in ps_p[i]:
-        forward(copy.deepcopy(l), o)
-for i1 in range(len(ps_p)):
-    if ps_p_av[i1]:
-        continue
-    forward([], i1)
-"""
+
 plt.plot(close)
 
+"""
 for i1, o in enumerate(ps_p):
     if len(o) < 1:
         continue
     for o in [[ps[i1], ps[i]] for i in o]:
         plt.plot(o, close[o], 'r')
+"""
+for i, o in enumerate(ps_size):
+    #if i == 0 or i == len(ps_size) - 1:
+    #    continue
+    p, s = [ps[i], close[ps[i]]], o
+    top = p[1] + s[1] / 2
+    bot = p[1] - s[1] / 2
+    left = p[0] - s[0] / 2
+    right = p[0] + s[0] / 2
+    p = [[left, right, right, left, left], [top, top, bot, bot, top]]
+    plt.plot(p[0], p[1], color='orange')
 
 plt.plot(ps, close[ps], 'ro')
 for i, o in enumerate(ps):
@@ -133,7 +137,6 @@ for i, o in enumerate(ps):
     plt.text(o, close[o], str(s))
 
 plt.show()
-
 
 
 

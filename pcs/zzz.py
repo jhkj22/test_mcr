@@ -1,3 +1,28 @@
+ps_p_av = [True if len(e) == 0 else False for e in ps_p]
+ps_seq = []
+def forward(l, i):
+    if len(l) >= 2:
+        a = abs(ps[l[-2]] - ps[l[-1]]) / abs(ps[l[-1]] - ps[i])
+        if a <= 0.5 or a >= 2.0:
+            if len(l) > 2:
+                if len(ps_seq) == 0 or ps_seq[-1] != l:
+                    ps_seq.append(l)
+            return
+        ps_p_av[i] = True
+    l.append(i)
+    if len(ps_p[i]) == 0:
+        if len(l) > 2:
+            ps_seq.append(l)
+        return
+    for o in ps_p[i]:
+        forward(copy.deepcopy(l), o)
+for i1 in range(len(ps_p)):
+    if ps_p_av[i1]:
+        continue
+    forward([], i1)
+
+
+
 import networkx
 
 vector = {}
