@@ -16,9 +16,26 @@ import matplotlib.pyplot as plt
 import numpy as np
 import copy
 
-start = getSize() - 10000 + 400
+start = getSize() - 10000 + 300
 close = np.array(getClose(start, start + 2 ** 7))
 
+class Block:
+    def __init__(self):
+        self.l = []
+        self.type = 0
+    def get_middle(self):
+        mx = max(self.l, key=lambda t: t[1])[1]
+        mn = min(self.l, key=lambda t: t[1])[1]
+        return [(self.l[0][0] + self.l[-1][0]) / 2, (mx + mn) / 2]
+    def draw(self):
+        if len(self.l) == 0:
+            return
+        top = max(self.l, key=lambda t: t[1])[1]
+        bot = min(self.l, key=lambda t: t[1])[1]
+        left = self.l[0][0]
+        right = self.l[-1][0]
+        ps = [[left, right, right, left, left], [top, top, bot, bot, top]]
+        plt.plot(ps[0], ps[1], color='orange')
 
 def first(close):
     tmp = []
@@ -41,106 +58,66 @@ def first(close):
     else:
         ps.append(i + 1)
     return ps
-def  get_extreme(ps, close):
-    l = [ps[0]]
-    for i in range(1, len(ps) - 1):
-        m = close[ps[i - 1]]
-        c = close[ps[i]]
-        p = close[ps[i + 1]]
-        if c < p and c < m:
-            l.append(ps[i])
-        elif c > p and c > m:
-            l.append(ps[i])
-    l.append(ps[-1])
-    return l
-ps = first(close)
-ps = get_extreme(ps, close)
 
-def get_size():
-    ps_size = [[ps[1] - ps[0], close[ps[1]] - close[ps[0]]]]
-    for i in range(1, len(ps) - 1):
-        l = close[ps[i - 1]]
-        c = close[ps[i]]
-        r = close[ps[i + 1]]
-        ld, rd = abs(l - c), abs(r - c)
-        if ld < rd:
-            w = ps[i] - ps[i - 1]
-            h = ld
-        else:
-            w = ps[i + 1] - ps[i]
-            h = rd
-        ps_size.append([w, h])
-    ps_size.append([ps[i + 1] - ps[i], close[ps[i + 1]] - close[ps[i]]])
-    return ps_size
+def  get_extreme(blocks):
+    ps = [blocks[0].get_middle()]
+    for i in range(1, len(blocks) - 1):
+        m = blocks[i - 1].get_middle()
+        c = blocks[i].get_middle()
+        p = blocks[i + 1].get_middle()
+        if c[1] < p[1] and c[1] < m[1]:
+            ps.append(c)
+        elif c[1] > p[1] and c[1] > m[1]:
+            ps.append(c)
+    ps.append(blocks[-1].get_middle())
+    return ps
 
-ps_size = get_size()
-
-def get_up():
-    mx = close[ps[i1]]
-    tmp = []
-    for i2 in range(i1 + 1, len(ps) - 1, 2):
-        mx = max([mx, close[ps[i2]]])
-        if len(tmp) > 0:
-            aa = []
-            for o3 in tmp:
-                x = [ps[i1], ps[o3], ps[i2 + 1]]
-                y = close[x]
-                aa.append((y[2] * (x[1] - x[0]) + y[0] * (x[2] - x[1])) / (x[2] - x[0]))
-            if aa[-1] >= y[1]:
-                continue
-            f = False
-            for n3 in range(len(tmp)):
-                a = (mx - close[ps[tmp[n3]]]) / (mx - aa[n3])
-                if a > 0.85:
-                    f = True
-                    break
-            if f:
-                tmp.append(i2 + 1)
-                continue
-        tmp.append(i2 + 1)
-        a = abs(mx - close[ps[i1]]) / abs(mx - close[ps[i2 + 1]])
-        if a < 0.5:
-            break
-        if a > 2.0:
-            continue
-        ps_p[i1].append(i2 + 1)
-def get_down():
-    pass
-
-def get_node():
-    ps_p = [[] for e in ps]
-    for i1 in range(len(ps) - 2):
-        get_up()
-        get_down()
-
-
+blocks = []
+for n in first(close):
+    b = Block()
+    b.l.append([n, close[n]])
+    blocks.append(b)
 
 plt.plot(close)
 
-"""
-for i1, o in enumerate(ps_p):
-    if len(o) < 1:
-        continue
-    for o in [[ps[i1], ps[i]] for i in o]:
-        plt.plot(o, close[o], 'r')
-"""
-for i, o in enumerate(ps_size):
-    #if i == 0 or i == len(ps_size) - 1:
-    #    continue
-    p, s = [ps[i], close[ps[i]]], o
-    top = p[1] + s[1] / 2
-    bot = p[1] - s[1] / 2
-    left = p[0] - s[0] / 2
-    right = p[0] + s[0] / 2
-    p = [[left, right, right, left, left], [top, top, bot, bot, top]]
-    plt.plot(p[0], p[1], color='orange')
+for f1 in range(2):
+    [b.draw() for b in blocks]
+    ps = get_extreme(blocks)
+    ps_d = np.transpose(ps)
+    plt.plot(ps_d[0], ps_d[1], 'ro')
+    ps = np.array(ps)
+    
+    ps_n = []
+    tmp = []
+    for i in range(len(ps) - 2):
+        n1 = abs(ps[i][1] - ps[i + 1][1])
+        n2 = abs(ps[i + 1][1] - ps[i + 2][1])
+        if n2 < n1 / 2:
+            tmp = [i + 1]
+        elif n1 < n2 / 2:
+            if len(tmp) != 0:
+                tmp.append(i + 1)
+                ps_n.append(tmp)
+                tmp = []
+        else:
+            if len(tmp) != 0:
+                tmp.append(i + 1)
+    blocks = []
+    i = 0
+    while i < len(ps):
+        if len(ps_n) > 0:
+            if ps_n[0][0] == i:
+                b = Block()
+                b.l = ps[ps_n[0]]
+                blocks.append(b)
+                i = ps_n[0][-1] + 1
+                ps_n.pop(0)
+                continue
+        b = Block()
+        b.l.append(list(ps[i]))
+        blocks.append(b)
+        i += 1
 
-plt.plot(ps, close[ps], 'ro')
-for i, o in enumerate(ps):
-    s = i % 10
-    if s == 0:
-        s = i
-    plt.text(o, close[o], str(s))
 
 plt.show()
 
