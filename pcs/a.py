@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import copy
 
-start = getSize() - 10000 + 300
+start = getSize() - 10000 + 1400
 close = np.array(getClose(start, start + 2 ** 7))
 
 class Block:
@@ -36,6 +36,7 @@ class Block:
         right = self.l[-1][0]
         ps = [[left, right, right, left, left], [top, top, bot, bot, top]]
         plt.plot(ps[0], ps[1], color='orange')
+
 
 def first(close):
     tmp = []
@@ -59,6 +60,22 @@ def first(close):
         ps.append(i + 1)
     return ps
 
+
+def  get_extreme(ps, close):
+    l = [ps[0]]
+    for i in range(1, len(ps) - 1):
+        m = close[ps[i - 1]]
+        c = close[ps[i]]
+        p = close[ps[i + 1]]
+        if c < p and c < m:
+            l.append(ps[i])
+        elif c > p and c > m:
+            l.append(ps[i])
+    l.append(ps[-1])
+    return l
+ps = first(close)
+ps = get_extreme(ps, close)
+"""
 def  get_extreme(blocks):
     ps = [blocks[0].get_middle()]
     for i in range(1, len(blocks) - 1):
@@ -78,13 +95,11 @@ for n in first(close):
     b.l.append([n, close[n]])
     blocks.append(b)
 
-plt.plot(close)
+blocks_f = []
+#ps_f = get_extreme(blocks)
 
-for f1 in range(2):
-    [b.draw() for b in blocks]
+for f1 in range(20):
     ps = get_extreme(blocks)
-    ps_d = np.transpose(ps)
-    plt.plot(ps_d[0], ps_d[1], 'ro')
     ps = np.array(ps)
     
     ps_n = []
@@ -92,16 +107,19 @@ for f1 in range(2):
     for i in range(len(ps) - 2):
         n1 = abs(ps[i][1] - ps[i + 1][1])
         n2 = abs(ps[i + 1][1] - ps[i + 2][1])
-        if n2 < n1 / 2:
+        if n2 < n1 / 1.5:
             tmp = [i + 1]
-        elif n1 < n2 / 2:
+        elif n1 < n2 / 1.5:
             if len(tmp) != 0:
                 tmp.append(i + 1)
-                ps_n.append(tmp)
+                if len(tmp) <= 3:
+                    ps_n.append(tmp)
                 tmp = []
         else:
             if len(tmp) != 0:
                 tmp.append(i + 1)
+    if len(ps_n) == 0:
+        break
     blocks = []
     i = 0
     while i < len(ps):
@@ -110,6 +128,7 @@ for f1 in range(2):
                 b = Block()
                 b.l = ps[ps_n[0]]
                 blocks.append(b)
+                blocks_f.append(b)
                 i = ps_n[0][-1] + 1
                 ps_n.pop(0)
                 continue
@@ -117,8 +136,9 @@ for f1 in range(2):
         b.l.append(list(ps[i]))
         blocks.append(b)
         i += 1
-
-
+"""
+plt.plot(close)
+#plt.plot(ps, close[ps], 'ro')
 plt.show()
 
 
