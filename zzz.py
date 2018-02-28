@@ -1,3 +1,30 @@
+    index = [0]
+    for i in range(1, 5):
+        index.extend([i, -i])
+    for i in index:
+        th_v = mid + i * n
+        _, th = cv2.threshold(img, th_v, 1, cv2.THRESH_BINARY)
+        _, contours, _ = cv2.findContours(th,
+                                cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+        if len(contours) == 1:
+            if TEST:
+                contours = np.transpose(contours[0].reshape(-1, 2))
+                plt.plot(contours[0] + c, contours[1] + r, 'ro')
+            return th_v
+
+
+from sklearn.cluster import k_means
+
+feature = img.flatten().reshape(-1, 1)
+centers = k_means(feature, 2)[0]
+
+for n in range(12):
+    plt.subplot(3, 4, n + 1)
+    th = 180 + n * 5
+    out = np.where(img > th, 1, 0)
+    plt.imshow(out, cmap='gray')
+    plt.text(0, 0, str(th), color='r')
+
 a = img[:,:,None]
 a = np.concatenate((a, a, a), axis=2)
 a = cv2.pyrMeanShiftFiltering(a, 32, 32)
