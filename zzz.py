@@ -1,3 +1,11 @@
+import scipy.cluster.hierarchy as sch
+X = img.flatten().reshape(-1, 1)
+Y = sch.average(X)
+plt.imshow(img)
+
+
+
+
     index = [0]
     for i in range(1, 5):
         index.extend([i, -i])
