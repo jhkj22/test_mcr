@@ -1,3 +1,13 @@
+def edge_type(r, c):
+    t = []
+    for rr in range(-10, 15, 5):
+        for cc in range(-10, 15, 5):
+            t.append([rr, cc])
+    t.remove([0, 0])
+    t.remove([10, 10]); t.remove([10, -10])
+    t.remove([-10, 10]); t.remove([-10, -10])
+    return [r + t[0], c + t[1]]
+
 import scipy.cluster.hierarchy as sch
 X = img.flatten().reshape(-1, 1)
 Y = sch.average(X)
