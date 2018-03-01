@@ -1,3 +1,16 @@
+def screen_out(img):
+    mx, mn = np.max(img), np.min(img)
+    mx, mn = float(mx), float(mn)
+    d = mx - mn
+    n = d // 12
+    for i in range(1, 13):
+        th_v = mn + i * n
+        _, th = cv2.threshold(img, th_v, 1, cv2.THRESH_BINARY)
+        plt.subplot(3, 4, i)
+        plt.imshow(th, cmap='gray')
+        plt.text(0, 0, str(th_v), color='r')
+
+
 def edge_type(r, c):
     t = []
     for rr in range(-10, 15, 5):
