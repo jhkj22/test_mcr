@@ -1,5 +1,5 @@
 import sys, os
-sys.path.append('/machine_learning/deep-learning-from-scratch')
+sys.path.append('../deep-learning-from-scratch')
 from dataset.mnist import load_mnist
 import numpy as np
 
@@ -14,5 +14,5 @@ if __name__ == '__main__':
     from PIL import Image
     img = Image.fromarray(img)
     img.save('xt_0_5.jpg')
-    
+
 

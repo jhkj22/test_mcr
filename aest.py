@@ -1,80 +1,79 @@
 from prep import get_image
-import clist
-from bed import *
-import mathlib as ml
 import numpy as np
-from scipy import ndimage
 import cv2
-from skimage.draw import circle_perimeter, circle
 import matplotlib.pyplot as plt
+import itertools
 
 img = get_image(0)
 _, img = cv2.threshold(img, 0, 1, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-_, contours, _ = cv2.findContours(img, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
-contours = [np.transpose(o, (1, 0, 2))[0] for o in contours]
-contours = np.flip(contours, 2)
-contours = contours[0]
-len_c = lambda i: i % len(contours)
+#_, contours, _ = cv2.findContours(img, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
 
-img_c = np.zeros((28, 28))
-for c in contours:
-    img_c[c[0], c[1]] = 1
 
-def init(key_i):
-    directions = [[0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1], [1, 0], [1, 1]]
-    sa = contours[len_c(key_i + 1)] - contours[len_c(key_i - 1)]
-    d = np.array(ml.quantize_dir([-sa[1], sa[0]]))
-    p = contours[key_i] + d
-    while img_c[p[0], p[1]] == 0 or img[p[0], p[1]] == 0:
-        p += d
-    for i, c in enumerate(contours):
-        if np.all(c == p):
-            return i
-def line_angle(i1, i2):
-    p1 = clist.get(contours, i1 - 1, i1 + 2)
-    p2 = clist.get(contours, i2 - 1, i2 + 2)
-    m1, m2 = (p1[0] + p1[2]) / 2.0, (p2[0] + p2[2]) / 2.0
-    ea1 = ml.exterior_angle([p1[0], m1, m2])
-    ea2 = ml.exterior_angle([p2[0], m2, m1])
-    return [ea1, ea2]
-facing_gap = lambda ea: abs(ea[0] + ea[1] + 180)
-facing_agl = lambda ea: abs(ea[0] - ea[1])
-def init2(i1, i2):
-    while True:
-        c = facing_gap(line_angle(i1, i2))
-        p = facing_gap(line_angle(i1, i2 + 1))
-        m = facing_gap(line_angle(i1, i2 - 1))
-        if c <= p and c <= m:
-            return i2
-        elif p < m:
-            i2 += 1
+
+
+def scan(ps):
+    center = []
+    count = 0
+    for i, p in enumerate(ps):
+        if img[p[0], p[1]] == 1:
+            count += 1
         else:
-            i2 -= 1
-def move(i1, i2, s):
-    pp = np.array([[1, 0], [0, -1], [1, -1]])
-    pp *= s
-    l = [[i, facing_gap(line_angle(i1 + p[0], i2 + p[1]))] for i, p in enumerate(pp)]
-    pi = sorted(l, key=lambda t: t[1])[0][0]
-    return [i1 + pp[pi][0], i2 + pp[pi][1]]
-remainings = [True for e in range(len(contours))]
-i1 = 0
-i2 = init(i1)
-i2 = init2(i1, i2)
+            if count > 0:
+                center.append([i - (count // 2 + 1), count])
+                count = 0
+    return center
+def thickness_1d(edge, d):
+    comp = []; uncomp = []
+    for s in edge:
+        line = []
+        while np.all((0 <= s) & (s < img.shape[1])):
+            line.append(np.copy(s))
+            s += d
+        head = [[line[i], s] for i, s in scan(line)]
+        j = len(uncomp) - 1
+        while j >= 0:
+            i = len(head) - 1
+            cont = False
+            while i >= 0:
+                if np.max(np.abs(uncomp[j][-1][0] - head[i][0])) < 3 and abs(uncomp[j][-1][1] - head[i][1]) < 4:
+                    uncomp[j].append(head[i])
+                    head.pop(i)
+                    cont = True
+                i -= 1
+            if not cont:
+                comp.append(uncomp[j])
+                uncomp.pop(j)
+            j -= 1
+        for h in head:
+            uncomp.append([h])
+    comp = [c for c in comp if len(c) >= min(c, key=lambda t: t[1])[1]]
+    return comp
 
-for n in range(5):
-    fa = facing_agl(line_angle(i1, i2))
-    print(fa)
-    draw = lambda p1, p2: plt.plot([p1[1], p2[1]], [p1[0], p2[0]], 'r')
-    p1, p2 = contours[i1], contours[i2]
-    #draw(p1, p2)
-    if n >= 4:
-        draw(contours[i1 - 1], contours[i1 + 1])
-        draw(contours[i2 - 1], contours[i2 + 1])
-    i1, i2 = move(i1, i2, -1)
+def thickness():
+    start = []
+    for r in range(img.shape[0]):
+        start.append([r, 0])
+    return thickness_1d(np.array(start), np.array([0, 1]))
 
-#tmp = np.transpose(contours, (1, 0))
-#plt.plot(tmp[1], tmp[0], 'ro')
-plt.imshow(img)
+def plot_comp(comp):
+    l = []
+    for c in comp:
+        x, y = [], []
+        for p in c:
+            x.append(p[0][1]); y.append(p[0][0])
+        l.append([x, y])
+    return l
+comp = thickness()
+comp = plot_comp(comp)
+for c in comp:
+    plt.plot(c[0], c[1], 'r')
+
+img = img.T
+comp = thickness()
+comp = plot_comp(comp)
+for c in comp:
+    plt.plot(c[1], c[0], 'b')
+plt.imshow(img.T)
 plt.show()
 
 
