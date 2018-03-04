@@ -4,10 +4,10 @@ import cv2
 import itertools
 
 img = cv2.imread('res/kick_boxing.jpg', 0)
-#img = img[200: 500, 0: 300]
+img = img[200: 500, 0: 300]
 #img = img[900: 1200, 100: 400]
 #img = img[500: 800, 150: 450]
-img = img[900: 1200, 400: 700]
+#img = img[900: 1200, 400: 700]
 def remove_edge(contours):
     start, stop = -1, -1
     for n, p in enumerate(contours):
@@ -62,6 +62,7 @@ def is_bactrian(img):
     return False
 
 def plot_rect(r, c):
+    r, c = r - 0.5, c - 0.5
     plt.plot([c, c + 10, c + 10, c, c],
              [r, r, r + 10, r + 10, r], 'r')
 def abc(r, c):
@@ -72,11 +73,11 @@ def abc(r, c):
     if len(edge) == 0:
         return -1
     plot_edge(edge, r, c)
-
+"""
 for r, c in itertools.product(range(0, img.shape[0] - 5, 5),
                               range(0, img.shape[1] - 5, 5)):
     abc(r, c)
-
+"""
 
 plt.imshow(img, cmap='gray', vmin=0, vmax=256)
 plt.show()
