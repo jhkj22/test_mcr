@@ -1,3 +1,30 @@
+def remove_2(ps, close):
+    while True:
+        ps_r = []
+        for i in range(len(ps) - 3):
+            d = close[ps[i: i + 4]]
+            d = np.abs(d[1:] - d[:-1])
+            if d[1] * 2 > d[0] or d[1] * 2 > d[2]:
+                continue
+            ps_r.extend([i + 1, i + 2])
+        if len(ps_r) == 0:
+            break
+        for i in reversed(ps_r):
+            ps.pop(i)
+    return ps
+def remove_3(ps, close):
+    for i in range(len(ps) - 4):
+        d = close[ps[i: i + 5]]
+        d = np.abs(d[1:] - d[:-1])
+        if d[0] < d[1] * 2 or d[3] < d[2] * 2:
+            continue
+        plt.plot(ps[i + 1: i + 4], close[ps[i + 1: i + 4]], 'ro')
+    return ps
+
+ps = remove_2(ps, close)
+ps = remove_3(ps, close)
+
+
 plt.plot(ps, close[ps], 'ro')
 for i, o in enumerate(ps):
     s = i % 10

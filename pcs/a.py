@@ -16,27 +16,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import copy
 
-start = getSize() - 10000 + 1400
+start = getSize() - 10000 + 300
 close = np.array(getClose(start, start + 2 ** 7))
-
-class Block:
-    def __init__(self):
-        self.l = []
-        self.type = 0
-    def get_middle(self):
-        mx = max(self.l, key=lambda t: t[1])[1]
-        mn = min(self.l, key=lambda t: t[1])[1]
-        return [(self.l[0][0] + self.l[-1][0]) / 2, (mx + mn) / 2]
-    def draw(self):
-        if len(self.l) == 0:
-            return
-        top = max(self.l, key=lambda t: t[1])[1]
-        bot = min(self.l, key=lambda t: t[1])[1]
-        left = self.l[0][0]
-        right = self.l[-1][0]
-        ps = [[left, right, right, left, left], [top, top, bot, bot, top]]
-        plt.plot(ps[0], ps[1], color='orange')
-
 
 def first(close):
     tmp = []
@@ -59,8 +40,6 @@ def first(close):
     else:
         ps.append(i + 1)
     return ps
-
-
 def  get_extreme(ps, close):
     l = [ps[0]]
     for i in range(1, len(ps) - 1):
@@ -73,72 +52,66 @@ def  get_extreme(ps, close):
             l.append(ps[i])
     l.append(ps[-1])
     return l
+
 ps = first(close)
 ps = get_extreme(ps, close)
-"""
-def  get_extreme(blocks):
-    ps = [blocks[0].get_middle()]
-    for i in range(1, len(blocks) - 1):
-        m = blocks[i - 1].get_middle()
-        c = blocks[i].get_middle()
-        p = blocks[i + 1].get_middle()
-        if c[1] < p[1] and c[1] < m[1]:
-            ps.append(c)
-        elif c[1] > p[1] and c[1] > m[1]:
-            ps.append(c)
-    ps.append(blocks[-1].get_middle())
-    return ps
+ps = np.transpose([ps, close[ps]])
 
-blocks = []
-for n in first(close):
-    b = Block()
-    b.l.append([n, close[n]])
-    blocks.append(b)
+def drop(ps):
+    if len(ps) > 3:
+        return ps
+    if len(ps) == 2:
+        return []
+    d = ps[:, 1]
+    d = np.abs(d[1:] - d[:-1])
+    a = min([d[0] / d[1], d[1] / d[0]])
+    if a > 0.95:
+        return [(ps[0] + ps[2]) / 2]
+    if ps[0][1] > ps[1][1]:
+        return [max(ps, key=lambda t: t[1])]
+    else:
+        return [min(ps, key=lambda t: t[1])]
 
-blocks_f = []
-#ps_f = get_extreme(blocks)
-
-for f1 in range(20):
-    ps = get_extreme(blocks)
-    ps = np.array(ps)
-    
+def boxing(ps):
     ps_n = []
     tmp = []
     for i in range(len(ps) - 2):
-        n1 = abs(ps[i][1] - ps[i + 1][1])
-        n2 = abs(ps[i + 1][1] - ps[i + 2][1])
-        if n2 < n1 / 1.5:
+        d = ps[i: i + 3, 1]
+        d = np.abs(d[1:] - d[:-1])
+        if d[1] < d[0] / 2:
             tmp = [i + 1]
-        elif n1 < n2 / 1.5:
+        elif d[0] < d[1] / 2:
             if len(tmp) != 0:
                 tmp.append(i + 1)
-                if len(tmp) <= 3:
-                    ps_n.append(tmp)
+                ps_n.append(tmp)
                 tmp = []
         else:
             if len(tmp) != 0:
                 tmp.append(i + 1)
-    if len(ps_n) == 0:
-        break
-    blocks = []
-    i = 0
-    while i < len(ps):
-        if len(ps_n) > 0:
-            if ps_n[0][0] == i:
-                b = Block()
-                b.l = ps[ps_n[0]]
-                blocks.append(b)
-                blocks_f.append(b)
-                i = ps_n[0][-1] + 1
-                ps_n.pop(0)
-                continue
-        b = Block()
-        b.l.append(list(ps[i]))
-        blocks.append(b)
-        i += 1
-"""
+    for ns in reversed(ps_n):
+        a = drop(ps[ns])
+        if len(a) > 1:
+            continue
+        for i in reversed(ns):
+            ps = np.delete(ps, i, axis=0)
+        if len(a) == 0:
+            continue
+        for i in range(len(ps)):
+            if ps[i][0] > a[0][0]:
+                break
+        ps = np.concatenate((ps, a))
+    tmp = []
+    for o in ps:
+        tmp.append([o[0], o[1]])
+    ps = sorted(tmp, key=lambda t: t[0])
+    return np.array(ps)
+
+for i in range(3):
+    ps = boxing(ps)
+
 plt.plot(close)
-#plt.plot(ps, close[ps], 'ro')
+ps = np.transpose(ps)
+plt.plot(ps[0], ps[1], 'ro')
 plt.show()
 
 
