@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import copy
 
-start = getSize() - 10000 + 300
+start = getSize() - 10000 + 400
 close = np.array(getClose(start, start + 2 ** 7))
 
 def first(close):
@@ -71,7 +71,8 @@ def drop(ps):
         return [max(ps, key=lambda t: t[1])]
     else:
         return [min(ps, key=lambda t: t[1])]
-
+def tunnel(ps):
+    print(ps)
 def boxing(ps):
     ps_n = []
     tmp = []
@@ -91,14 +92,12 @@ def boxing(ps):
     for ns in reversed(ps_n):
         a = drop(ps[ns])
         if len(a) > 1:
+            tunnel(ps[[ns[0] - 1] + ns + [ns[-1] + 1]])
             continue
         for i in reversed(ns):
             ps = np.delete(ps, i, axis=0)
         if len(a) == 0:
             continue
-        for i in range(len(ps)):
-            if ps[i][0] > a[0][0]:
-                break
         ps = np.concatenate((ps, a))
     tmp = []
     for o in ps:
