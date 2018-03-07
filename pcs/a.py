@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import copy
 
-start = getSize() - 10000 + 400
+start = getSize() - 10000 + 600
 close = np.array(getClose(start, start + 2 ** 7))
 
 def first(close):
@@ -71,6 +71,33 @@ def drop(ps):
         return [max(ps, key=lambda t: t[1])]
     else:
         return [min(ps, key=lambda t: t[1])]
+def ar_child(ps_p, i1):
+    mx = i1
+    tmp = []
+    for i2 in range(i1 + 1, len(ps)):
+        if ps_p[i2] > ps_p[mx]:
+            mx = i2
+            tmp.append(i2)
+        if i2 == len(ps) - 1:
+            break
+        if ps_p[i2 + 1] < ps_p[i1]:
+            break
+    return tmp
+def all_right(ps):
+    ps_r = []
+    ps_p = np.transpose(ps)[1]
+    ps_pm = -ps_p
+    if ps_p[0] < ps_p[1]:
+        up = True
+    else:
+        up = False
+    for i1 in range(len(ps) - 1):
+        if up:
+            ps_r.append(ar_child(ps_p, i1))
+        else:
+            ps_r.append(ar_child(ps_pm, i1))
+        up = not up
+    return ps_r
 def tunnel(ps):
     print(ps)
 def boxing(ps):
@@ -107,6 +134,8 @@ def boxing(ps):
 
 for i in range(3):
     ps = boxing(ps)
+
+
 
 plt.plot(close)
 ps = np.transpose(ps)
