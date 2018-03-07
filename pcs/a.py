@@ -74,11 +74,11 @@ def drop(ps):
 def ar_child(ps_p, i1):
     mx = i1
     tmp = []
-    for i2 in range(i1 + 1, len(ps)):
+    for i2 in range(i1 + 1, len(ps_p)):
         if ps_p[i2] > ps_p[mx]:
             mx = i2
             tmp.append(i2)
-        if i2 == len(ps) - 1:
+        if i2 == len(ps_p) - 1:
             break
         if ps_p[i2 + 1] < ps_p[i1]:
             break
@@ -99,16 +99,16 @@ def all_right(ps):
         up = not up
     return ps_r
 def tunnel(ps):
-    print(ps)
+    print(all_right(ps))
 def boxing(ps):
     ps_n = []
     tmp = []
     for i in range(len(ps) - 2):
         d = ps[i: i + 3, 1]
         d = np.abs(d[1:] - d[:-1])
-        if d[1] < d[0] / 2:
+        if d[1] < d[0] / 1.8:
             tmp = [i + 1]
-        elif d[0] < d[1] / 2:
+        elif d[0] < d[1] / 1.8:
             if len(tmp) != 0:
                 tmp.append(i + 1)
                 ps_n.append(tmp)
@@ -132,7 +132,7 @@ def boxing(ps):
     ps = sorted(tmp, key=lambda t: t[0])
     return np.array(ps)
 
-for i in range(3):
+for i in range(1):
     ps = boxing(ps)
 
 
