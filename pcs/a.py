@@ -98,8 +98,26 @@ def all_right(ps):
             ps_r.append(ar_child(ps_pm, i1))
         up = not up
     return ps_r
+def tunnel_rec(ps, path, whole, top):
+    if len(top) >= 3:
+        pp = [ps[top[n]][1] for n in range(-3, 0)]
+        d = [abs(pp[0] - pp[1]), abs(pp[1] - pp[2])]
+        a = max([d[0] / d[1], d[1] / d[0]])
+        if a > 1.8:
+            return
+    if top[-1] == len(path):
+        if len(top) >= 3:
+            whole.append(copy.deepcopy(top))
+        return
+    for p in path[top[-1]]:
+        tunnel_rec(ps, path, whole, top + [p])
 def tunnel(ps):
-    print(all_right(ps))
+    whole = []
+    tunnel_rec(ps, all_right(ps), whole, [0])
+    print(whole)
+    #print(all_right(ps))
+    #ps = np.transpose(ps)
+    #plt.plot(ps[0], ps[1], 'o-')
 def boxing(ps):
     ps_n = []
     tmp = []
@@ -137,9 +155,9 @@ for i in range(1):
 
 
 
-plt.plot(close)
-ps = np.transpose(ps)
-plt.plot(ps[0], ps[1], 'ro')
+#plt.plot(close)
+#ps = np.transpose(ps)
+#plt.plot(ps[0], ps[1], 'ro')
 plt.show()
 
 
