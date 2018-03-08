@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import copy
 
-start = getSize() - 10000 + 600
+start = getSize() - 10000 + 500
 close = np.array(getClose(start, start + 2 ** 7))
 
 def first(close):
@@ -57,20 +57,6 @@ ps = first(close)
 ps = get_extreme(ps, close)
 ps = np.transpose([ps, close[ps]])
 
-def drop(ps):
-    if len(ps) > 3:
-        return ps
-    if len(ps) == 2:
-        return []
-    d = ps[:, 1]
-    d = np.abs(d[1:] - d[:-1])
-    a = min([d[0] / d[1], d[1] / d[0]])
-    if a > 0.95:
-        return [(ps[0] + ps[2]) / 2]
-    if ps[0][1] > ps[1][1]:
-        return [max(ps, key=lambda t: t[1])]
-    else:
-        return [min(ps, key=lambda t: t[1])]
 def ar_child(ps_p, i1):
     mx = i1
     tmp = []
@@ -112,12 +98,35 @@ def tunnel_rec(ps, path, whole, top):
     for p in path[top[-1]]:
         tunnel_rec(ps, path, whole, top + [p])
 def tunnel(ps):
+    if ps[1][0] == 23.5:
+        print(all_right(ps))
+        pp = np.transpose(ps)
+        plt.plot(pp[0], pp[1], 'o-')
     whole = []
     tunnel_rec(ps, all_right(ps), whole, [0])
-    print(whole)
-    #print(all_right(ps))
-    #ps = np.transpose(ps)
-    #plt.plot(ps[0], ps[1], 'o-')
+    return whole
+#[[1, 7], [2, 4], [3], [4], [5, 7], [6], [7]]
+def drop(ps):
+    if len(ps) > 5:
+        tn = tunnel(ps)
+        if len(tn) < 1:
+            return []
+        elif len(tn) == 1 and len(tn[0]) == 3:
+            return [ps[tn[0][1]]]
+        else:
+            return ps[1:-1]
+    ps = ps[1:-1]
+    if len(ps) == 2:
+        return []
+    d = ps[:, 1]
+    d = np.abs(d[1:] - d[:-1])
+    a = min([d[0] / d[1], d[1] / d[0]])
+    if a > 0.95:
+        return [(ps[0] + ps[2]) / 2]
+    if ps[0][1] > ps[1][1]:
+        return [max(ps, key=lambda t: t[1])]
+    else:
+        return [min(ps, key=lambda t: t[1])]
 def boxing(ps):
     ps_n = []
     tmp = []
@@ -135,10 +144,7 @@ def boxing(ps):
             if len(tmp) != 0:
                 tmp.append(i + 1)
     for ns in reversed(ps_n):
-        a = drop(ps[ns])
-        if len(a) > 1:
-            tunnel(ps[[ns[0] - 1] + ns + [ns[-1] + 1]])
-            continue
+        a = drop(ps[[ns[0] - 1] + ns + [ns[-1] + 1]])
         for i in reversed(ns):
             ps = np.delete(ps, i, axis=0)
         if len(a) == 0:
@@ -150,7 +156,7 @@ def boxing(ps):
     ps = sorted(tmp, key=lambda t: t[0])
     return np.array(ps)
 
-for i in range(1):
+for i in range(3):
     ps = boxing(ps)
 
 
