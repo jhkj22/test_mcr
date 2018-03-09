@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import copy
 
-start = getSize() - 10000 + 500
+start = getSize() - 10000 - 400
 close = np.array(getClose(start, start + 2 ** 7))
 
 def first(close):
@@ -84,35 +84,55 @@ def all_right(ps):
             ps_r.append(ar_child(ps_pm, i1))
         up = not up
     return ps_r
-def tunnel_rec(ps, path, whole, top):
-    if len(top) >= 3:
-        pp = [ps[top[n]][1] for n in range(-3, 0)]
-        d = [abs(pp[0] - pp[1]), abs(pp[1] - pp[2])]
-        a = max([d[0] / d[1], d[1] / d[0]])
-        if a > 1.8:
-            return
-    if top[-1] == len(path):
+class Tunnel:
+    def __init__(self, ps):
+        self.path = all_right(ps)
+        self.ps = ps
+        print(ps)
+        self.debug = False
+        if ps[0][0] == 13:
+            self.debug = True
+    def is_dangling(self):
+        t = 0
+        self.whole = []
+        self.__rec(len(self.path) - 1, [0])
+        self.whole = [o for o in self.whole if o[-1] == len(self.path) - 1]
+        if len(self.whole) > 0:
+            return False
+        self.whole = []
+        self.__rec(len(self.path), [1])
+        self.whole = [o for o in self.whole if o[-1] == len(self.path)]
+        if len(self.whole) > 0:
+            return False
+        return True
+    def __rec(self, stop, top):
         if len(top) >= 3:
-            whole.append(copy.deepcopy(top))
-        return
-    for p in path[top[-1]]:
-        tunnel_rec(ps, path, whole, top + [p])
-def tunnel(ps):
-    if ps[1][0] == 23.5:
-        print(all_right(ps))
-        pp = np.transpose(ps)
-        plt.plot(pp[0], pp[1], 'o-')
-    whole = []
-    tunnel_rec(ps, all_right(ps), whole, [0])
-    return whole
-#[[1, 7], [2, 4], [3], [4], [5, 7], [6], [7]]
+            pp = [self.ps[top[n]][1] for n in range(-3, 0)]
+            d = [abs(pp[0] - pp[1]), abs(pp[1] - pp[2])]
+            a = max([d[0] / d[1], d[1] / d[0]])
+            if a > 1.8:
+                return
+        if top[-1] >= stop:
+            top = [o for o in top if o <= stop]
+            if len(top) >= 3:
+                self.whole.append(copy.deepcopy(top))
+            return
+        for p in self.path[top[-1]]:
+            self.__rec(stop, top + [p])
 def drop(ps):
     if len(ps) > 5:
-        tn = tunnel(ps)
-        if len(tn) < 1:
-            return []
-        elif len(tn) == 1 and len(tn[0]) == 3:
-            return [ps[tn[0][1]]]
+        tn = Tunnel(ps)
+        d = tn.is_dangling()
+        if d:
+            if len(ps) % 2 == 0:
+                return []
+            else:
+                mx = max(ps, key=lambda t: t[1])
+                mn = min(ps, key=lambda t: t[1])
+                if mx[0] == ps[0][0] or mx[0] == ps[len(ps) - 1][0]:
+                    return [mn]
+                else:
+                    return [mx]
         else:
             return ps[1:-1]
     ps = ps[1:-1]
@@ -156,14 +176,14 @@ def boxing(ps):
     ps = sorted(tmp, key=lambda t: t[0])
     return np.array(ps)
 
-for i in range(3):
+for i in range(5):
     ps = boxing(ps)
 
 
 
-#plt.plot(close)
-#ps = np.transpose(ps)
-#plt.plot(ps[0], ps[1], 'ro')
+plt.plot(close)
+ps = np.transpose(ps)
+plt.plot(ps[0], ps[1], 'ro')
 plt.show()
 
 
