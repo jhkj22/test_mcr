@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import copy
 
-start = getSize() - 10000 + 300
+start = getSize() - 10000 + 500
 close = np.array(getClose(start, start + 2 ** 7))
 
 def first(close):
