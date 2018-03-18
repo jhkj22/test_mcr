@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import copy
 
-start = getSize() - 10000 + 300
+start = getSize() - 10000 + 200
 close = np.array(getClose(start, start + 2 ** 7))
 
 def first(close):
@@ -65,12 +65,7 @@ def ar_child(ps_p, i1):
             break
         if ps_p[i2 + 1] > ps_p[mx]:
             mx = i2 + 1
-            mn_i = i1 + 1 + np.argmin(ps_p[i1 + 1: mx])
-            mn_v = ps_p[mn_i]
-            mx_i = i1 + 1 + np.argmax(ps_p[i1 + 1: mn_i])
-            mx_v = ps_p[mx_i]
-            tmp.append([mx, (mx_v - mn_v) / (mx_v - ps[i1][1])])
-    print(tmp)
+            tmp.append(mx)
     return tmp
 def all_right(ps):
     ps_r = []
@@ -89,33 +84,83 @@ def all_right(ps):
     return ps_r
 
 
-def remove_2(ps):
+def remove_2(ps, ps2):
     while True:
-        ps_r = []
+        rm = []
         for i in range(len(ps) - 3):
             d = ps[i: i + 4, 1]
             d = np.abs(d[1:] - d[:-1])
-            if d[1] * 2 > d[0] or d[1] * 2 > d[2]:
-                continue
-            ps_r.extend([i + 1, i + 2])
-        if len(ps_r) == 0:
+            a = [d[0] / d[1], d[2] / d[1]]
+            if a[0] > 1.05 and a[1] > 1.05:
+                rm.extend([i + 1, i + 2])
+        if len(rm) == 0:
             break
-        for i in reversed(ps_r):
-            ps.pop(i)
+        for i in rm[::2]:
+            ps2.append(ps[i: i + 2])
+        ps = np.delete(ps, rm, axis=0)
     return ps
-def remove_3(ps, close):
-    for i in range(len(ps) - 4):
-        d = ps[i: i + 5, ]
+
+def drop(ps):
+    if len(ps) % 2 == 0:
+        return []
+    x = (ps[1][0] + ps[-2][0]) // 2
+    if ps[0][1] > ps[1][1]:
+        y = min(ps, key=lambda t: t[1])[1]
+    else:
+        y = max(ps, key=lambda t: t[1])[1]
+    return [[x, y]]
+
+def remove_n(ps):
+    ps_n = []
+    tmp = []
+    for i in range(len(ps) - 2):
+        d = ps[i: i + 3, 1]
         d = np.abs(d[1:] - d[:-1])
-        if d[0] < d[1] * 2 or d[3] < d[2] * 2:
-            continue
-        plt.plot(ps[i + 1: i + 4], close[ps[i + 1: i + 4]], 'ro')
+        if d[1] < d[0] / 1.8:
+            tmp = [i + 1]
+        elif d[0] < d[1] / 1.8:
+            if len(tmp) != 0:
+                tmp.append(i + 1)
+                ps_n.append(tmp)
+                tmp = []
+        else:
+            if len(tmp) != 0:
+                tmp.append(i + 1)
+    for ns in reversed(ps_n):
+        a = drop(ps[[ns[0] - 1] + ns + [ns[-1]]])
+        for i in reversed(ns):
+            ps = np.delete(ps, i, axis=0)
+        ps = np.concatenate((ps, a))
+    tmp = []
+    for o in ps:
+        tmp.append([o[0], o[1]])
+    ps = np.array(sorted(tmp, key=lambda t: t[0]))
     return ps
+def get_2(ps):
+    ps2 = []
+    while True:
+        prev = len(ps)
+        ps = remove_2(ps, ps2)
+        ps = remove_n(ps)
+        if len(ps) == prev:
+            break
+    return ps2
+ps2 = get_2(ps)
+ps_r = all_right(ps)
 
-ps = remove_2(ps, close)
-ps = remove_3(ps, close)
 
+
+for i, ns in enumerate(ps_r):
+    print(i, ns)
+
+
+
+
+for o in ps2:
+    o = np.transpose(o)
+    plt.plot(o[0], o[1], 'r', linewidth=5)
 plt.plot(close)
+
 for i, o in enumerate(ps):
     s = i % 10
     if s == 0:
