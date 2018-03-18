@@ -1,29 +1,25 @@
-import networkx
+import numpy as np
 import matplotlib.pyplot as plt
-from itertools import combinations
-from random import randint
+import random
 
-vector = {}
-persons = ['a', 'b', 'c', 'd', 'e']
+img = np.zeros((500, 500))
 
-for person in persons:
-    vector[person] = []
+for i in range(300):
+    x = random.random() * 500
+    y = random.random() * 500
+    x, y = int(x), int(y)
+    img[x, y] = 1
+for i in range(3000):
+    x = random.random() * 500
+    y = random.random() * 500
+    x, y = int(x), int(y)
+    if np.sqrt((x - 250) ** 2 + (y - 250) ** 2) <= 150:
+        img[x, y] = 1
 
-for man_pair in combinations(persons, 2):
-    man1, man2 = man_pair
-    r = randint(1, 10)
-    if r % 2:
-        continue
-    else:
-        vector[man1].append(man2)
-        edge_labels[(man1, man2)] = r
-
-graph = networkx.Graph(vector)
-pos = networkx.spring_layout(graph)
-
-
-networkx.draw_networkx_nodes(graph, pos)
-networkx.draw_networkx_edges(graph, pos)
-networkx.draw_networkx_labels(graph, pos)
-
+plt.imshow(img)
 plt.show()
+
+
+
+
+

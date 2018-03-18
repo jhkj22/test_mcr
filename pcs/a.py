@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import copy
 
-start = getSize() - 10000 + 800
+start = getSize() - 10000 + 300
 close = np.array(getClose(start, start + 2 ** 7))
 
 def first(close):
@@ -60,14 +60,17 @@ ps = np.transpose([ps, close[ps]])
 def ar_child(ps_p, i1):
     mx = i1
     tmp = []
-    for i2 in range(i1 + 1, len(ps_p)):
-        if ps_p[i2] > ps_p[mx]:
-            mx = i2
-            tmp.append(i2)
-        if i2 == len(ps_p) - 1:
+    for i2 in range(i1 + 2, len(ps_p) - 1, 2):
+        if ps_p[i2] < ps_p[i1]:
             break
-        if ps_p[i2 + 1] < ps_p[i1]:
-            break
+        if ps_p[i2 + 1] > ps_p[mx]:
+            mx = i2 + 1
+            mn_i = i1 + 1 + np.argmin(ps_p[i1 + 1: mx])
+            mn_v = ps_p[mn_i]
+            mx_i = i1 + 1 + np.argmax(ps_p[i1 + 1: mn_i])
+            mx_v = ps_p[mx_i]
+            tmp.append([mx, (mx_v - mn_v) / (mx_v - ps[i1][1])])
+    print(tmp)
     return tmp
 def all_right(ps):
     ps_r = []
@@ -85,16 +88,39 @@ def all_right(ps):
         up = not up
     return ps_r
 
-ps_r = all_right(ps)
 
-for i1, os in enumerate(ps_r):
-    for i2 in os:
-        p = np.transpose([ps[i1], ps[i2]])
-        if p[0][1] - p[0][0] > 5:
+def remove_2(ps):
+    while True:
+        ps_r = []
+        for i in range(len(ps) - 3):
+            d = ps[i: i + 4, 1]
+            d = np.abs(d[1:] - d[:-1])
+            if d[1] * 2 > d[0] or d[1] * 2 > d[2]:
+                continue
+            ps_r.extend([i + 1, i + 2])
+        if len(ps_r) == 0:
             break
-        plt.plot(p[0], p[1], 'b')
+        for i in reversed(ps_r):
+            ps.pop(i)
+    return ps
+def remove_3(ps, close):
+    for i in range(len(ps) - 4):
+        d = ps[i: i + 5, ]
+        d = np.abs(d[1:] - d[:-1])
+        if d[0] < d[1] * 2 or d[3] < d[2] * 2:
+            continue
+        plt.plot(ps[i + 1: i + 4], close[ps[i + 1: i + 4]], 'ro')
+    return ps
 
-#plt.plot(close)
+ps = remove_2(ps, close)
+ps = remove_3(ps, close)
+
+plt.plot(close)
+for i, o in enumerate(ps):
+    s = i % 10
+    if s == 0:
+        s = i
+    plt.text(o[0], o[1], str(s))
 ps = np.transpose(ps)
 plt.plot(ps[0], ps[1], 'ro')
 plt.show()

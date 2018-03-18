@@ -1,3 +1,45 @@
+mx = ps[start + 1][1]
+mn = ps[start + 2][1]
+tmp = []
+for n in range(start + 2, len(ps) - 1, 2):
+    if ps[n][1] < ps[start][1]:
+        break
+    if ps[n + 1][1] > mx:
+        mx_r = mx - mn
+        mx = ps[n + 1][1]
+        tmp.append([n + 1, mx_r / (ps[n + 1][1] - ps[start][1])])
+    else:
+        mn = min([mn, ps[n][1]])
+print(tmp)
+
+
+close = 100 * (close - np.min(close)) / (np.max(close) - np.min(close))
+
+
+def exterior_angle(p):
+    p = np.array(p)
+    p -= p[1]
+    ff = -complex(p[2][0], p[2][1]) / complex(p[0][0], p[0][1])
+    return -np.angle(ff) / np.pi
+
+n = 1
+l = [0 for e in range(n)]
+for i in range(n, len(close) - n):
+    index = [i - n, i, i + n]
+    ps = np.transpose([index, close[index]])
+    ext = exterior_angle(ps)
+    l.append(ext)
+l.extend([0 for e in range(n)])
+
+Y = close
+X = range(1, len(Y) + 1)
+A = np.array([X, np.ones(len(X))])
+A = A.T
+a, b = np.linalg.lstsq(A, Y)[0]
+plt.plot(X, Y)
+plt.plot(X, (a * X + b), "g--")
+
+
 def ar_child(ps_p, i1):
     mx = i1
     tmp = []
