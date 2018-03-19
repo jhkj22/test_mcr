@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import copy
 
-start = getSize() - 10000 + 400
+start = getSize() - 10000 + 1100
 close = np.array(getClose(start, start + 2 ** 7))
 
 def first(close):
@@ -136,6 +136,14 @@ def remove_n(ps):
         tmp.append([o[0], o[1]])
     ps = np.array(sorted(tmp, key=lambda t: t[0]))
     return ps
+def draw_ps(ps):
+    for i, o in enumerate(ps):
+        s = i % 10
+        if s == 0:
+            s = i
+        plt.text(o[0], o[1], str(s))
+    ps = np.transpose(ps)
+    plt.plot(ps[0], ps[1], 'ro')
 def get_2(ps):
     ps2 = []
     while True:
@@ -144,6 +152,7 @@ def get_2(ps):
         ps = remove_n(ps)
         if len(ps) == prev:
             break
+    draw_ps(ps)
     return ps2
 ps2 = get_2(ps)
 ps_size = []
@@ -153,7 +162,7 @@ for o in ps2:
     ps_size.append([o[0], [w, h]])
     ps_size.append([o[1], [w, h]])
 ps_size = np.array(ps_size)
-
+"""
 plt.subplot(211)
 plt.plot([0, len(close)], [0, 0], 'w')
 for o in ps_size:
@@ -165,19 +174,11 @@ for o in ps_size:
     p = [[left, right, right, left, left], [top, top, bot, bot, top]]
     plt.plot(p[0], p[1], color='orange')
 
-plt.subplot(212)
+plt.subplot(212)"""
 for o in ps2:
     o = np.transpose(o)
     plt.plot(o[0], o[1], 'r', linewidth=5)
 plt.plot(close)
-
-for i, o in enumerate(ps):
-    s = i % 10
-    if s == 0:
-        s = i
-    plt.text(o[0], o[1], str(s))
-ps = np.transpose(ps)
-plt.plot(ps[0], ps[1], 'ro')
 
 plt.show()
 
