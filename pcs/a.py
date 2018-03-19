@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import copy
 
-start = getSize() - 10000 + 200
+start = getSize() - 10000 + 400
 close = np.array(getClose(start, start + 2 ** 7))
 
 def first(close):
@@ -146,16 +146,26 @@ def get_2(ps):
             break
     return ps2
 ps2 = get_2(ps)
-ps_r = all_right(ps)
+ps_size = []
+for o in ps2:
+    w = o[1][0] - o[0][0]
+    h = abs(o[1][1] - o[0][1])
+    ps_size.append([o[0], [w, h]])
+    ps_size.append([o[1], [w, h]])
+ps_size = np.array(ps_size)
 
+plt.subplot(211)
+plt.plot([0, len(close)], [0, 0], 'w')
+for o in ps_size:
+    p, s = [o[0][0], 0], o[1]
+    top = p[1] + s[1] / 2
+    bot = p[1] - s[1] / 2
+    left = p[0] - s[0] / 2
+    right = p[0] + s[0] / 2
+    p = [[left, right, right, left, left], [top, top, bot, bot, top]]
+    plt.plot(p[0], p[1], color='orange')
 
-
-for i, ns in enumerate(ps_r):
-    print(i, ns)
-
-
-
-
+plt.subplot(212)
 for o in ps2:
     o = np.transpose(o)
     plt.plot(o[0], o[1], 'r', linewidth=5)
@@ -168,6 +178,7 @@ for i, o in enumerate(ps):
     plt.text(o[0], o[1], str(s))
 ps = np.transpose(ps)
 plt.plot(ps[0], ps[1], 'ro')
+
 plt.show()
 
 
