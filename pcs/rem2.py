@@ -1,4 +1,4 @@
-def remove_2(ps):
+def remove_2(ps, ps2):
     while True:
         rm = []
         for i in range(len(ps) - 3):
@@ -51,9 +51,21 @@ def remove_n(ps):
     ps = np.array(sorted(tmp, key=lambda t: t[0]))
     return ps
 
-while True:
-    prev = len(ps)
-    ps = remove_2(ps)
-    ps = remove_n(ps)
-    if len(ps) == prev:
-        break
+def draw_ps(ps):
+    for i, o in enumerate(ps):
+        s = i % 10
+        if s == 0:
+            s = i
+        plt.text(o[0], o[1], str(s))
+    ps = np.transpose(ps)
+    plt.plot(ps[0], ps[1], 'ro')
+def get_2(ps):
+    ps2 = []
+    while True:
+        prev = len(ps)
+        ps = remove_2(ps, ps2)
+        ps = remove_n(ps)
+        if len(ps) == prev:
+            break
+    draw_ps(ps)
+    return ps2

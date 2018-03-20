@@ -1,3 +1,24 @@
+ps2 = get_2(ps)
+ps_size = []
+for o in ps2:
+    w = o[1][0] - o[0][0]
+    h = abs(o[1][1] - o[0][1])
+    ps_size.append([o[0], [w, h]])
+    ps_size.append([o[1], [w, h]])
+ps_size = np.array(ps_size)
+
+
+plt.plot([0, len(close)], [0, 0], 'w')
+for o in ps_size:
+    p, s = [o[0][0], 0], o[1]
+    top = p[1] + s[1] / 2
+    bot = p[1] - s[1] / 2
+    left = p[0] - s[0] / 2
+    right = p[0] + s[0] / 2
+    p = [[left, right, right, left, left], [top, top, bot, bot, top]]
+    plt.plot(p[0], p[1], color='orange')
+
+
 mx = ps[start + 1][1]
 mn = ps[start + 2][1]
 tmp = []
@@ -43,14 +64,12 @@ plt.plot(X, (a * X + b), "g--")
 def ar_child(ps_p, i1):
     mx = i1
     tmp = []
-    for i2 in range(i1 + 1, len(ps_p)):
-        if ps_p[i2] > ps_p[mx]:
-            mx = i2
-            tmp.append(i2)
-        if i2 == len(ps_p) - 1:
+    for i2 in range(i1 + 2, len(ps_p) - 1, 2):
+        if ps_p[i2] < ps_p[i1]:
             break
-        if ps_p[i2 + 1] < ps_p[i1]:
-            break
+        if ps_p[i2 + 1] > ps_p[mx]:
+            mx = i2 + 1
+            tmp.append(mx)
     return tmp
 def all_right(ps):
     ps_r = []
