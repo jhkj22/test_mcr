@@ -55,13 +55,13 @@ def get_size(ps):
     ps_size.append([ps[i + 1][0] - ps[i][0], abs(ps[i + 1][1] - ps[i][1])])
     return ps_size
 def draw_ps(ps):
+    import matplotlib.pyplot as plt
     for i, o in enumerate(ps):
         s = i % 10
         if s == 0:
             s = i
         plt.text(o[0], o[1], str(s))
     ps = np.transpose(ps)
-    import matplotlib.pyplot as plt
     plt.plot(ps[0], ps[1], 'ro')
 def get_up(ps, i1):
     pp = []
