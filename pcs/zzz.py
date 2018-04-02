@@ -1,3 +1,73 @@
+close = 100 * (close - np.min(close)) / (np.max(close) - np.min(close))
+
+ps = get_ps(close)
+def split(ps):
+    if ps[0][1] > ps[1][1]:
+        psu = ps[1::2]
+        psd = ps[0::2]
+    else:
+        psu = ps[0::2]
+        psd = ps[1::2]
+    return [psu, psd]
+psu, psd = split(ps)
+
+def remove_1(psu):
+    tmp = []
+    for i in range(1, len(psu) - 1):
+        ea = exterior_angle(psu[i - 1: i + 2])
+        if ea < -30:
+            tmp.append(i)
+    ps_t = psu[tmp]
+    ps_t = np.transpose(ps_t)
+    plt.plot(ps_t[0], ps_t[1], 'bo', markersize=10)
+    return psu
+ps = np.transpose(psu)
+plt.plot(ps[0], ps[1], 'ro-')
+ps = np.transpose(psd)
+plt.plot(ps[0], ps[1], 'ro-')
+
+
+
+class simulator:
+    def __init__(self, entry, exit):
+        self.trades = []
+        start = getSize() - 10000 + 1500
+        self.close = np.array(getClose(start, start + 2 ** 10))
+        self.entry_f = entry
+        self.exit_f = exit
+    def start(self):
+        for i in range(2 ** 7, 2 ** 10):
+            cl = self.close[i - 2 ** 7, i]
+            if len(self.trades) == 0:
+                b = self.entry_f(cl)
+                if b > 0:
+                    trades.append([b, i])
+            elif len(self.trades[-1]) == 3:
+                b = self.entry_f(cl)
+                if b > 0:
+                    trades.append([b, i])
+            else:
+                b = self.exit_f(cl, trades[-1])
+                if b > 0:
+                    trades[-1].append(i)
+def press(event):
+    global start
+    if event.key == 'x':
+        start += 1
+        cl = close[start: start + 16]
+        lines.set_data(range(len(cl)), cl)
+        #ax.set_ylim((cl.min() - 0.001, cl.max() + 0.001))
+        ax.relim()
+        ax.autoscale_view()
+        fig.canvas.draw()
+
+fig, ax = plt.subplots()
+fig.canvas.mpl_connect('key_press_event', press)
+
+start = 0
+lines, = ax.plot(close[start: start + 16])
+
+
 ps2 = get_2(ps)
 ps_size = []
 for o in ps2:

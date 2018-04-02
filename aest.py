@@ -5,15 +5,12 @@ import matplotlib.pyplot as plt
 import itertools
 from functions import ZhangSuen
 
-img = get_image(0)
+img = get_image(4)
 _, img = cv2.threshold(img, 0, 1, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 #_, contours, _ = cv2.findContours(img, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
 
 out = ZhangSuen(img)
 
-plt.subplot(121)
-plt.imshow(img)
-plt.subplot(122)
 plt.imshow(out)
 plt.show()
 
